@@ -227,31 +227,51 @@
       -webkit-user-select: none;
       touch-action: none;
     }
-    #dpad-panel  { left:  8px; }
-    #action-panel { right: 8px; }
+    #joystick-panel { left: 4px; }
+    #action-panel   { right: 8px; }
 
-    .dpad {
-      display: grid;
-      grid-template-columns: repeat(3, 52px);
-      grid-template-rows: repeat(3, 52px);
-      gap: 3px;
-    }
-    .dpad-btn {
-      font-family: inherit;
-      font-size: 1.2rem;
-      background: rgba(26,26,46,0.85);
-      color: #7af;
-      border: 2px solid rgba(68,85,136,0.9);
-      border-radius: 6px;
-      cursor: pointer;
+    /* Virtual joystick */
+    #joystick-zone {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
       touch-action: none;
-      box-shadow: 0 0 8px #48f5, inset 0 0 6px #0008;
+      cursor: pointer;
     }
-    .dpad-btn:active { background: rgba(42,42,78,0.95); box-shadow: 0 0 16px #48fc; }
-    .dpad-center { background: transparent !important; border-color: transparent !important; pointer-events: none; box-shadow: none !important; }
+    #joystick-base {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: rgba(16,18,38,0.80);
+      border: 2px solid rgba(68,85,136,0.85);
+      box-shadow: 0 0 14px #48f3, inset 0 0 14px #0009;
+      position: relative;
+    }
+    /* subtle crosshair lines */
+    #joystick-base::before, #joystick-base::after {
+      content: '';
+      position: absolute;
+      background: rgba(68,85,136,0.25);
+    }
+    #joystick-base::before { width: 100%; height: 1px; top: 50%; left: 0; transform: translateY(-50%); }
+    #joystick-base::after  { width: 1px; height: 100%; left: 50%; top: 0; transform: translateX(-50%); }
+    #joystick-knob {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(110,140,230,0.95), rgba(36,46,110,0.92));
+      border: 2px solid #7af;
+      box-shadow: 0 0 14px #48fb, inset 0 0 8px rgba(140,180,255,0.4);
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      transition: box-shadow 0.08s;
+    }
 
     .action-buttons {
       display: grid;
@@ -312,18 +332,12 @@
 </header>
 
 <div class="cabinet">
-  <!-- Touch panels inside cabinet so they're visible in fullscreen -->
-  <div class="touch-panel" id="dpad-panel">
-    <div class="dpad">
-      <button class="dpad-btn dpad-diag" data-keylist="up lt">↖</button>
-      <button class="dpad-btn" data-key="up">▲</button>
-      <button class="dpad-btn dpad-diag" data-keylist="up rt">↗</button>
-      <button class="dpad-btn" data-key="lt">◀</button>
-      <div class="dpad-btn dpad-center"></div>
-      <button class="dpad-btn" data-key="rt">▶</button>
-      <button class="dpad-btn dpad-diag" data-keylist="dn lt">↙</button>
-      <button class="dpad-btn" data-key="dn">▼</button>
-      <button class="dpad-btn dpad-diag" data-keylist="dn rt">↘</button>
+  <!-- Virtual joystick panel (left side) -->
+  <div class="touch-panel" id="joystick-panel">
+    <div id="joystick-zone">
+      <div id="joystick-base">
+        <div id="joystick-knob"></div>
+      </div>
     </div>
   </div>
   <div class="touch-panel" id="action-panel">
@@ -391,8 +405,8 @@
   }
 
   function showPad(on) {
-    document.getElementById('dpad-panel').style.display   = on ? 'flex' : 'none';
-    document.getElementById('action-panel').style.display = on ? 'flex' : 'none';
+    document.getElementById('joystick-panel').style.display = on ? 'flex' : 'none';
+    document.getElementById('action-panel').style.display   = on ? 'flex' : 'none';
     padVisible = on;
     scaleGame();
   }

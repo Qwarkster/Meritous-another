@@ -69,7 +69,71 @@ if (typeof document !== 'undefined') {
       btn.addEventListener('lostpointercapture',   up);
     }
 
+    // Wire action buttons (right panel) with pointer capture
     document.querySelectorAll('[data-key],[data-keylist]').forEach(wireBtn);
+
+    // Virtual joystick
+    var jZone = document.getElementById('joystick-zone');
+    if (jZone) {
+      var jKnob = document.getElementById('joystick-knob');
+      var jActive = false;
+      var jCx = 0, jCy = 0;
+      var jMaxR = 42;   // max knob travel (px) — a touch beyond this still gives full deflection
+      var jDead = 10;   // deadzone radius before any key fires
+
+      function jUpdate(px, py) {
+        var dx = px - jCx, dy = py - jCy;
+        var dist = Math.sqrt(dx*dx + dy*dy);
+        // Move knob visually, clamped to max radius
+        var kx = dist > jMaxR ? dx/dist*jMaxR : dx;
+        var ky = dist > jMaxR ? dy/dist*jMaxR : dy;
+        jKnob.style.transform = 'translate(calc(-50% + '+kx+'px), calc(-50% + '+ky+'px))';
+        jKnob.style.boxShadow  = dist > jDead ? '0 0 20px #48ff, inset 0 0 8px rgba(140,180,255,0.5)' : '';
+        // 8-way sector mapping
+        var up=0, dn=0, lt=0, rt=0;
+        if (dist > jDead) {
+          var a = Math.atan2(dy, dx);  // screen: dy>0 = down
+          var p = Math.PI;
+          if      (a > -p/8  && a <=  p/8)  { rt=1; }
+          else if (a >  p/8  && a <= 3*p/8) { rt=1; dn=1; }
+          else if (a > 3*p/8 && a <= 5*p/8) { dn=1; }
+          else if (a > 5*p/8 && a <= 7*p/8) { lt=1; dn=1; }
+          else if (a >  7*p/8 || a <= -7*p/8) { lt=1; }
+          else if (a > -7*p/8 && a <= -5*p/8) { lt=1; up=1; }
+          else if (a > -5*p/8 && a <= -3*p/8) { up=1; }
+          else                                 { rt=1; up=1; }
+        }
+        MERITOUS_KEYS.up=up; MERITOUS_KEYS.dn=dn;
+        MERITOUS_KEYS.lt=lt; MERITOUS_KEYS.rt=rt;
+      }
+
+      function jRelease() {
+        jActive = false;
+        jKnob.style.transform = 'translate(-50%, -50%)';
+        jKnob.style.boxShadow = '';
+        MERITOUS_KEYS.up=0; MERITOUS_KEYS.dn=0;
+        MERITOUS_KEYS.lt=0; MERITOUS_KEYS.rt=0;
+      }
+
+      jZone.addEventListener('pointerdown', function(e) {
+        e.preventDefault();
+        jZone.setPointerCapture(e.pointerId);
+        jActive = true;
+        // Origin = center of joystick zone
+        var r = jZone.getBoundingClientRect();
+        jCx = r.left + r.width/2;
+        jCy = r.top  + r.height/2;
+        jUpdate(e.clientX, e.clientY);
+      });
+      jZone.addEventListener('pointermove', function(e) {
+        if (!jActive) return;
+        e.preventDefault();
+        jUpdate(e.clientX, e.clientY);
+      });
+      jZone.addEventListener('pointerup',          jRelease);
+      jZone.addEventListener('pointercancel',       jRelease);
+      jZone.addEventListener('lostpointercapture',  jRelease);
+    }
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', mkDOMSetup);
