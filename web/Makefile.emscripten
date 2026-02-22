@@ -53,13 +53,13 @@ EM_FLAGS = \
 	-DDATADIR='"$(DATADIR_FS)"' \
 	-DLOCALEDIR='""'
 
-default: $(OUTDIR)/meritous.html
+default: $(OUTDIR)/index.html
 
-$(OUTDIR)/meritous.html: $(SRCS) web/shell.html web/pre.js
+$(OUTDIR)/index.html: $(SRCS) web/shell.html web/pre.js
 	@mkdir -p $(OUTDIR)
-	emcc $(EM_FLAGS) $(SRCS) -o $(OUTDIR)/meritous.html
+	emcc $(EM_FLAGS) $(SRCS) -o $(OUTDIR)/index.html
 
 clean:
-	rm -f $(OUTDIR)/meritous.html $(OUTDIR)/meritous.js \
-	      $(OUTDIR)/meritous.wasm $(OUTDIR)/meritous.data \
-	      $(OUTDIR)/meritous.worker.js
+	rm -f $(OUTDIR)/index.html $(OUTDIR)/index.js \
+	      $(OUTDIR)/index.wasm $(OUTDIR)/index.data \
+	      $(OUTDIR)/index.worker.js

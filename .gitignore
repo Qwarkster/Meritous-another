@@ -2,6 +2,11 @@
 anotherversion/*.zip
 
 # Emscripten build outputs
+web/index.html
+web/index.js
+web/index.wasm
+web/index.data
+web/index.worker.js
 web/meritous.html
 web/meritous.js
 web/meritous.wasm
