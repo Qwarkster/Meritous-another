@@ -42,57 +42,56 @@ if (typeof document !== 'undefined') {
       canvas.addEventListener('click', function() { canvas.focus(); });
     }
 
-    // Wire touch/pointer input on each control button.
-    // setPointerCapture ensures pointerup fires on the SAME element even if the
-    // finger slides off — this fixes the stuck-key slide-off bug.
-    // data-keylist (space-separated) used for diagonal buttons (data-keys conflicts
-    // with DOMStringMap.prototype.keys iterator in some browsers).
-    function getKeys(btn) {
-      var k = btn.getAttribute('data-keylist') || btn.getAttribute('data-key') || '';
-      return k.split(' ').filter(function(x) { return MERITOUS_KEYS.hasOwnProperty(x); });
-    }
-
+    // Wire action buttons with BOTH pointer (desktop) AND touch (mobile) events.
+    // SDL's touch handlers can block pointer synthesis on mobile — direct touch
+    // events on our own elements are the reliable path.
     function wireBtn(btn) {
       var active = [];
-      btn.addEventListener('pointerdown', function(e) {
-        e.preventDefault();
-        try { btn.setPointerCapture(e.pointerId); } catch(ex) {}
+      function press() {
         active = getKeys(btn);
         for (var i = 0; i < active.length; i++) MERITOUS_KEYS[active[i]] = 1;
-      });
+      }
       function up() {
         for (var i = 0; i < active.length; i++) MERITOUS_KEYS[active[i]] = 0;
         active = [];
       }
-      btn.addEventListener('pointerup',           up);
-      btn.addEventListener('pointercancel',        up);
-      btn.addEventListener('lostpointercapture',   up);
+      btn.addEventListener('pointerdown', function(e) {
+        e.preventDefault();
+        try { btn.setPointerCapture(e.pointerId); } catch(ex) {}
+        press();
+      });
+      btn.addEventListener('pointerup',         up);
+      btn.addEventListener('pointercancel',      up);
+      btn.addEventListener('lostpointercapture', up);
+      // Touch fallback for mobile
+      btn.addEventListener('touchstart', function(e) { e.preventDefault(); press(); }, {passive: false});
+      btn.addEventListener('touchend',    function(e) { e.preventDefault(); up();   }, {passive: false});
+      btn.addEventListener('touchcancel', up, {passive: true});
     }
 
-    // Wire action buttons (right panel) with pointer capture
     document.querySelectorAll('[data-key],[data-keylist]').forEach(wireBtn);
 
-    // Virtual joystick
+    // Virtual joystick — touch events are PRIMARY on mobile; pointer events
+    // handle desktop (mouse). jTouchId guards against double-firing.
     var jZone = document.getElementById('joystick-zone');
     if (jZone) {
       var jKnob = document.getElementById('joystick-knob');
       var jActive = false;
       var jCx = 0, jCy = 0;
-      var jMaxR = 42;   // max knob travel (px) — a touch beyond this still gives full deflection
-      var jDead = 10;   // deadzone radius before any key fires
+      var jTouchId = -1;
+      var jMaxR = 42;
+      var jDead = 10;
 
       function jUpdate(px, py) {
         var dx = px - jCx, dy = py - jCy;
         var dist = Math.sqrt(dx*dx + dy*dy);
-        // Move knob visually, clamped to max radius
         var kx = dist > jMaxR ? dx/dist*jMaxR : dx;
         var ky = dist > jMaxR ? dy/dist*jMaxR : dy;
         jKnob.style.transform = 'translate(calc(-50% + '+kx+'px), calc(-50% + '+ky+'px))';
-        jKnob.style.boxShadow  = dist > jDead ? '0 0 20px #48ff, inset 0 0 8px rgba(140,180,255,0.5)' : '';
-        // 8-way sector mapping
+        jKnob.style.boxShadow = dist > jDead ? '0 0 20px #48ff, inset 0 0 8px rgba(140,180,255,0.5)' : '';
         var up=0, dn=0, lt=0, rt=0;
         if (dist > jDead) {
-          var a = Math.atan2(dy, dx);  // screen: dy>0 = down
+          var a = Math.atan2(dy, dx);
           var p = Math.PI;
           if      (a > -p/8  && a <=  p/8)  { rt=1; }
           else if (a >  p/8  && a <= 3*p/8) { rt=1; dn=1; }
@@ -108,31 +107,56 @@ if (typeof document !== 'undefined') {
       }
 
       function jRelease() {
-        jActive = false;
+        jActive = false; jTouchId = -1;
         jKnob.style.transform = 'translate(-50%, -50%)';
         jKnob.style.boxShadow = '';
         MERITOUS_KEYS.up=0; MERITOUS_KEYS.dn=0;
         MERITOUS_KEYS.lt=0; MERITOUS_KEYS.rt=0;
       }
 
-      jZone.addEventListener('pointerdown', function(e) {
-        e.preventDefault();
-        jZone.setPointerCapture(e.pointerId);
-        jActive = true;
-        // Origin = center of joystick zone
+      function jOrigin() {
         var r = jZone.getBoundingClientRect();
         jCx = r.left + r.width/2;
         jCy = r.top  + r.height/2;
-        jUpdate(e.clientX, e.clientY);
+      }
+
+      // Touch events (mobile primary)
+      jZone.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        if (jTouchId !== -1) return;
+        var t = e.changedTouches[0];
+        jTouchId = t.identifier; jActive = true;
+        jOrigin(); jUpdate(t.clientX, t.clientY);
+      }, {passive: false});
+
+      jZone.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+        for (var i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === jTouchId) {
+            jUpdate(e.changedTouches[i].clientX, e.changedTouches[i].clientY); return;
+          }
+        }
+      }, {passive: false});
+
+      jZone.addEventListener('touchend', function(e) {
+        for (var i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === jTouchId) { jRelease(); return; }
+        }
+      }, {passive: false});
+      jZone.addEventListener('touchcancel', jRelease, {passive: true});
+
+      // Pointer events (desktop fallback, skipped when touch is active)
+      jZone.addEventListener('pointerdown', function(e) {
+        if (jTouchId !== -1) return;
+        e.preventDefault(); jZone.setPointerCapture(e.pointerId);
+        jActive = true; jOrigin(); jUpdate(e.clientX, e.clientY);
       });
       jZone.addEventListener('pointermove', function(e) {
-        if (!jActive) return;
-        e.preventDefault();
-        jUpdate(e.clientX, e.clientY);
+        if (!jActive || jTouchId !== -1) return; jUpdate(e.clientX, e.clientY);
       });
-      jZone.addEventListener('pointerup',          jRelease);
-      jZone.addEventListener('pointercancel',       jRelease);
-      jZone.addEventListener('lostpointercapture',  jRelease);
+      jZone.addEventListener('pointerup',         function(e) { if (jTouchId===-1) jRelease(); });
+      jZone.addEventListener('pointercancel',      function(e) { if (jTouchId===-1) jRelease(); });
+      jZone.addEventListener('lostpointercapture', function(e) { if (jTouchId===-1) jRelease(); });
     }
   }
   if (document.readyState === 'loading') {
