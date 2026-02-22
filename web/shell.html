@@ -213,12 +213,12 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* Touch controls: fixed to viewport sides, centered vertically */
+    /* Touch panels: absolute inside cabinet, shown only when fullscreen */
     .touch-panel {
-      position: fixed;
+      position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      z-index: 100;
+      z-index: 10;
       display: none;
       flex-direction: column;
       align-items: center;
@@ -312,6 +312,28 @@
 </header>
 
 <div class="cabinet">
+  <!-- Touch panels inside cabinet so they're visible in fullscreen -->
+  <div class="touch-panel" id="dpad-panel">
+    <div class="dpad">
+      <div></div>
+      <button class="dpad-btn" data-key="up">▲</button>
+      <div></div>
+      <button class="dpad-btn" data-key="lt">◀</button>
+      <div class="dpad-btn dpad-center"></div>
+      <button class="dpad-btn" data-key="rt">▶</button>
+      <div></div>
+      <button class="dpad-btn" data-key="dn">▼</button>
+      <div></div>
+    </div>
+  </div>
+  <div class="touch-panel" id="action-panel">
+    <div class="action-buttons">
+      <button class="act-btn fire" data-key="sp"><span class="icon">⚡</span>FIRE</button>
+      <button class="act-btn" data-key="enter"><span class="icon">✓</span>OK</button>
+      <button class="act-btn" data-key="tab"><span class="icon">🗺</span>MAP</button>
+      <button class="act-btn" data-key="esc"><span class="icon">☰</span>MENU</button>
+    </div>
+  </div>
   <div class="screen-wrap" id="screen-wrap">
     <canvas id="canvas" width="640" height="480"
             oncontextmenu="event.preventDefault()" tabindex="0"></canvas>
@@ -322,34 +344,9 @@
   </div>
 </div>
 
-<!-- Touch controls: fixed to viewport, not inside cabinet -->
-<div class="touch-panel" id="dpad-panel">
-  <div class="dpad">
-    <div></div>
-    <button class="dpad-btn" data-key="up">▲</button>
-    <div></div>
-    <button class="dpad-btn" data-key="lt">◀</button>
-    <div class="dpad-btn dpad-center"></div>
-    <button class="dpad-btn" data-key="rt">▶</button>
-    <div></div>
-    <button class="dpad-btn" data-key="dn">▼</button>
-    <div></div>
-  </div>
-</div>
-
-<div class="touch-panel" id="action-panel">
-  <div class="action-buttons">
-    <button class="act-btn fire" data-key="sp"><span class="icon">⚡</span>FIRE</button>
-    <button class="act-btn" data-key="enter"><span class="icon">✓</span>OK</button>
-    <button class="act-btn" data-key="tab"><span class="icon">🗺</span>MAP</button>
-    <button class="act-btn" data-key="esc"><span class="icon">☰</span>MENU</button>
-  </div>
-</div>
-
 <div class="controls-bar">
   <button class="ctrl-btn" onclick="goFullscreen()">⛶ FULLSCREEN</button>
   <button class="ctrl-btn" id="mute-btn" onclick="toggleMute()">♪ MUTE</button>
-  <button class="ctrl-btn" id="gamepad-toggle" onclick="toggleGamepad()">🎮 SHOW PAD</button>
 </div>
 
 <div class="key-hints">
@@ -365,6 +362,7 @@
 <footer>
   <div>Click the game area to capture keyboard input.</div>
   <div>Original game © 2007-2008 Lancer-X/ASCEAI — <a href="https://github.com/lancer-x/meritous" target="_blank">source</a></div>
+  <div id="build-id" style="margin-top:4px;color:#223;font-size:0.3rem;letter-spacing:0.05em;">BUILD: BUILD_ID_PLACEHOLDER</div>
 </footer>
 
 <script>
@@ -381,13 +379,15 @@
 
   function goFullscreen() {
     var c = document.querySelector('.cabinet');
-    (c.requestFullscreen || c.webkitRequestFullscreen || c.mozRequestFullScreen).call(c);
-  }
-
-  function toggleGamepad() {
-    padVisible = !padVisible;
-    showPad(padVisible);
-    document.getElementById('gamepad-toggle').textContent = padVisible ? '🎮 HIDE PAD' : '🎮 SHOW PAD';
+    var fn = c.requestFullscreen || c.webkitRequestFullscreen || c.mozRequestFullScreen;
+    if (!fn) return;
+    fn.call(c).then(function() {
+      // Lock orientation to landscape after fullscreen is granted (Android Chrome; silently
+      // ignored on iOS which doesn't support orientation.lock).
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(function() {});
+      }
+    }).catch(function() {});
   }
 
   function showPad(on) {
@@ -397,8 +397,25 @@
     scaleGame();
   }
 
-  // Scale canvas for fullscreen. For normal view, CSS aspect-ratio + max-width handles it.
-  // In fullscreen we set canvas.style.width/height directly (Emscripten doesn't touch these).
+  function onFullscreenChange() {
+    var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+    if (fsEl) {
+      showPad(true);
+    } else {
+      showPad(false);
+      // Release orientation lock when leaving fullscreen
+      if (screen.orientation && screen.orientation.unlock) {
+        try { screen.orientation.unlock(); } catch(e) {}
+      }
+    }
+    scaleGame();
+  }
+
+  document.addEventListener('fullscreenchange',       onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+  // Scale canvas for fullscreen. CSS aspect-ratio + max-width handles normal view.
+  // In fullscreen, set canvas.style.width/height directly (Emscripten doesn't touch these).
   function scaleGame() {
     var canvas = document.getElementById('canvas');
     var wrap   = document.getElementById('screen-wrap');
@@ -407,8 +424,10 @@
     if (fsEl) {
       var sw = screen.width;
       var sh = screen.height;
-      // Each fixed panel is 170px wide + 8px margin from edge = 178px occupied per side
-      var sideW = padVisible ? 178 : 0;
+      // dpad-panel: 162px wide at left:8px = 170px from edge
+      // action-panel: 122px wide at right:8px = 130px from edge
+      // Use 170px per side conservatively so canvas stays clear of both panels
+      var sideW = padVisible ? 170 : 0;
       var avW = sw - sideW * 2;
       var avH = sh;
       var scale = Math.min(avW / 640, avH / 480);
@@ -424,10 +443,8 @@
     }
   }
 
-  document.addEventListener('fullscreenchange',       function() { scaleGame(); if (document.fullscreenElement) showPad(true); });
-  document.addEventListener('webkitfullscreenchange', function() { scaleGame(); if (document.webkitFullscreenElement) showPad(true); });
-  window.addEventListener('resize',              scaleGame);
-  window.addEventListener('orientationchange',   function() { setTimeout(scaleGame, 200); });
+  window.addEventListener('resize',            scaleGame);
+  window.addEventListener('orientationchange', function() { setTimeout(scaleGame, 200); });
 
   var statusEl   = document.getElementById('loading-text');
   var progressEl = document.getElementById('progress-fill');

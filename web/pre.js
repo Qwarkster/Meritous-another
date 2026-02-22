@@ -60,13 +60,6 @@ if (typeof document !== 'undefined') {
     document.addEventListener('touchstart',  function(e) { touchKey(e, 1); }, { capture: true, passive: false });
     document.addEventListener('touchend',    function(e) { touchKey(e, 0); }, { capture: true, passive: false });
     document.addEventListener('touchcancel', function(e) { touchKey(e, 0); }, { capture: true, passive: true  });
-
-    // Auto-show touch overlay on touch-capable devices
-    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-      showPad(true);
-      var toggleBtn = document.getElementById('gamepad-toggle');
-      if (toggleBtn) toggleBtn.textContent = '🎮 HIDE PAD';
-    }
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', mkDOMSetup);
