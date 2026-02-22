@@ -280,7 +280,7 @@
     .act-btn.fire { border-color: rgba(170,68,68,0.8); color: #faa; box-shadow: 0 0 8px #a446; }
     .act-btn.fire:active { box-shadow: 0 0 16px #f449; }
 
-    /* Fullscreen: cabinet fills screen, canvas scales to fit, controls in side spaces */
+    /* Fullscreen: cabinet fills screen, JS scales canvas (see pre.js applyFullscreenScale) */
     .cabinet:fullscreen,
     .cabinet:-webkit-full-screen,
     .cabinet:-moz-full-screen {
@@ -302,13 +302,6 @@
     .cabinet:-webkit-full-screen .screen-wrap,
     .cabinet:-moz-full-screen .screen-wrap {
       position: static;
-    }
-    .cabinet:fullscreen canvas,
-    .cabinet:-webkit-full-screen canvas,
-    .cabinet:-moz-full-screen canvas {
-      /* Explicit scale: fit within side controls and screen height, maintain 4:3 */
-      width:  min(calc(100vw - 340px), calc(100vh * 640 / 480)) !important;
-      height: min(100vh, calc((100vw - 340px) * 480 / 640)) !important;
     }
   </style>
 </head>

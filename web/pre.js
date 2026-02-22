@@ -42,19 +42,51 @@ if (typeof document !== 'undefined') {
       canvas.addEventListener('click', function() { canvas.focus(); });
     }
 
-    // Touch overlay — wire buttons to MERITOUS_KEYS via pointer events
-    // Uses pointer capture so each button tracks its own touch independently (multi-touch).
+    // Touch overlay — wire buttons to MERITOUS_KEYS.
+    // Use both pointer events (desktop/modern) AND touchstart/touchend (iOS Safari fallback).
     document.querySelectorAll('[data-key]').forEach(function(btn) {
       var key = btn.dataset.key;
       if (!MERITOUS_KEYS.hasOwnProperty(key)) return;
+
+      // Pointer events (Chrome/Android/desktop)
       btn.addEventListener('pointerdown', function(e) {
         e.preventDefault();
-        btn.setPointerCapture(e.pointerId);
+        try { btn.setPointerCapture(e.pointerId); } catch(ex) {}
         MERITOUS_KEYS[key] = 1;
       });
-      btn.addEventListener('pointerup',     function(e) { MERITOUS_KEYS[key] = 0; });
+      btn.addEventListener('pointerup',     function(e) { e.preventDefault(); MERITOUS_KEYS[key] = 0; });
       btn.addEventListener('pointercancel', function(e) { MERITOUS_KEYS[key] = 0; });
+
+      // Touch fallback (iOS Safari)
+      btn.addEventListener('touchstart', function(e) { e.preventDefault(); MERITOUS_KEYS[key] = 1; }, {passive: false});
+      btn.addEventListener('touchend',   function(e) { e.preventDefault(); MERITOUS_KEYS[key] = 0; }, {passive: false});
+      btn.addEventListener('touchcancel',function(e) { MERITOUS_KEYS[key] = 0; }, {passive: false});
     });
+
+  // Fullscreen scaling: JS-driven so Emscripten inline styles don't interfere.
+  // Scales canvas to fit between the side controls (340px total) while filling screen height.
+  function applyFullscreenScale() {
+    var canvas = document.getElementById('canvas');
+    if (!canvas) return;
+    var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+    if (fsEl) {
+      var sw = window.screen.width  || window.innerWidth;
+      var sh = window.screen.height || window.innerHeight;
+      // Available width after side controls (170px each side)
+      var avW = sw - 340;
+      var avH = sh;
+      // Fit 640×480 within avW × avH maintaining aspect ratio
+      var scale = Math.min(avW / 640, avH / 480);
+      canvas.style.width  = Math.floor(640 * scale) + 'px';
+      canvas.style.height = Math.floor(480 * scale) + 'px';
+    } else {
+      // Restore normal size
+      canvas.style.width  = '';
+      canvas.style.height = '';
+    }
+  }
+  document.addEventListener('fullscreenchange',       applyFullscreenScale);
+  document.addEventListener('webkitfullscreenchange', applyFullscreenScale);
 
     // Auto-show touch overlay on touch-capable devices
     if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
