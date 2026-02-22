@@ -2542,6 +2542,17 @@ void ActivateTile(unsigned char tile, int x, int y)
 			break;
 		case 31:
 			DoSaveGame(save_filename);
+#ifdef __EMSCRIPTEN__
+			EM_ASM({
+				FS.syncfs(false, function(err) {
+					if (err) console.warn('IDBFS flush error:', err);
+					else {
+						var t = document.getElementById('save-toast');
+						if (t) { t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); }, 2000); }
+					}
+				});
+			});
+#endif
 			break;
 		case 32:
 			CrystalSummon();

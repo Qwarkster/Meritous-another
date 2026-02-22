@@ -182,6 +182,104 @@
     }
     footer a { color: #446; text-decoration: none; }
     footer a:hover { color: #7af; }
+
+    /* Save toast */
+    #save-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #0d1a0d;
+      border: 1px solid #3a3;
+      color: #6f6;
+      font-size: 0.45rem;
+      padding: 8px 18px;
+      border-radius: 3px;
+      box-shadow: 0 0 12px #3a36;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      letter-spacing: 0.1em;
+      z-index: 100;
+    }
+    #save-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Touch overlay */
+    #touch-overlay {
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 640px;
+      padding: 10px 4px;
+      gap: 10px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .dpad {
+      display: grid;
+      grid-template-columns: repeat(3, 54px);
+      grid-template-rows: repeat(3, 54px);
+      gap: 3px;
+    }
+    .dpad-btn {
+      font-family: inherit;
+      font-size: 1.2rem;
+      background: #1a1a2e;
+      color: #7af;
+      border: 2px solid #334;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: none;
+      box-shadow: 0 0 8px #48f4, inset 0 0 6px #0006;
+      transition: background 0.1s, box-shadow 0.1s;
+    }
+    .dpad-btn:active, .dpad-btn.pressed {
+      background: #2a2a4e;
+      box-shadow: 0 0 14px #48f9;
+    }
+    .dpad-center { background: #111; border-color: #222; pointer-events: none; }
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 60px);
+      grid-template-rows: repeat(2, 60px);
+      gap: 6px;
+    }
+    .act-btn {
+      font-family: inherit;
+      font-size: 0.38rem;
+      background: #1a1a2e;
+      color: #9ab;
+      border: 2px solid #334;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      touch-action: none;
+      gap: 2px;
+      box-shadow: 0 0 8px #48f4, inset 0 0 6px #0006;
+      transition: background 0.1s, box-shadow 0.1s;
+      line-height: 1.2;
+    }
+    .act-btn .icon { font-size: 1rem; }
+    .act-btn:active, .act-btn.pressed {
+      background: #2a2a4e;
+      box-shadow: 0 0 14px #48f9;
+    }
+    .act-btn.fire { border-color: #a44; color: #faa; box-shadow: 0 0 8px #a446; }
+    .act-btn.fire:active { box-shadow: 0 0 16px #f449; }
   </style>
 </head>
 <body>
@@ -206,6 +304,29 @@
 <div class="controls-bar">
   <button class="ctrl-btn" onclick="var c=document.getElementById('canvas');(c.requestFullscreen||c.webkitRequestFullscreen||c.mozRequestFullScreen).call(c)">⛶ FULLSCREEN</button>
   <button class="ctrl-btn" id="mute-btn" onclick="toggleMute()">♪ MUTE</button>
+  <button class="ctrl-btn" id="gamepad-toggle" onclick="toggleGamepad()">🎮 SHOW PAD</button>
+</div>
+
+<div id="touch-overlay">
+  <!-- D-pad (left side) -->
+  <div class="dpad">
+    <div></div>
+    <button class="dpad-btn" data-key="up">▲</button>
+    <div></div>
+    <button class="dpad-btn" data-key="lt">◀</button>
+    <div class="dpad-btn dpad-center"></div>
+    <button class="dpad-btn" data-key="rt">▶</button>
+    <div></div>
+    <button class="dpad-btn" data-key="dn">▼</button>
+    <div></div>
+  </div>
+  <!-- Action buttons (right side) -->
+  <div class="action-buttons">
+    <button class="act-btn fire" data-key="sp"><span class="icon">⚡</span>FIRE</button>
+    <button class="act-btn" data-key="enter"><span class="icon">✓</span>OK</button>
+    <button class="act-btn" data-key="tab"><span class="icon">🗺</span>MAP</button>
+    <button class="act-btn" data-key="esc"><span class="icon">☰</span>MENU</button>
+  </div>
 </div>
 
 <div class="key-hints">
@@ -215,6 +336,8 @@
   <span>PAUSE</span> P &nbsp;&nbsp;
   <span>HELP</span> H
 </div>
+
+<div id="save-toast">✓ SAVED</div>
 
 <footer>
   <div>Click the game area to capture keyboard input.</div>
@@ -229,6 +352,14 @@
     if (typeof Module !== 'undefined' && Module.SDL && Module.SDL.audioContext) {
       Module.SDL.audioContext[muted ? 'suspend' : 'resume']();
     }
+  }
+
+  function toggleGamepad() {
+    var overlay = document.getElementById('touch-overlay');
+    var btn = document.getElementById('gamepad-toggle');
+    var visible = overlay.style.display === 'flex';
+    overlay.style.display = visible ? 'none' : 'flex';
+    btn.textContent = visible ? '🎮 SHOW PAD' : '🎮 HIDE PAD';
   }
 
   var statusEl   = document.getElementById('loading-text');
@@ -267,7 +398,6 @@
     setStatus('ERROR — see browser console');
   };
 </script>
-<script async src="meritous.js"></script>
 {{{ SCRIPT }}}
 </body>
 </html>

@@ -39,8 +39,48 @@ if (typeof document !== 'undefined') {
       canvas.focus();
       canvas.addEventListener('click', function() { canvas.focus(); });
     }
+
+    // Touch overlay — wire buttons to MERITOUS_KEYS via pointer events
+    // Uses pointer capture so each button tracks its own touch independently (multi-touch).
+    var TOUCH_KEY_MAP = {
+      'up':'up', 'dn':'dn', 'lt':'lt', 'rt':'rt',
+      'sp':'sp', 'enter':'enter', 'tab':'tab', 'esc':'esc'
+    };
+    document.querySelectorAll('[data-key]').forEach(function(btn) {
+      var key = btn.dataset.key;
+      if (!TOUCH_KEY_MAP[key]) return;
+      btn.addEventListener('pointerdown', function(e) {
+        e.preventDefault();
+        btn.setPointerCapture(e.pointerId);
+        MERITOUS_KEYS[key] = 1;
+      });
+      btn.addEventListener('pointerup',     function(e) { MERITOUS_KEYS[key] = 0; });
+      btn.addEventListener('pointercancel', function(e) { MERITOUS_KEYS[key] = 0; });
+    });
+
+    // Auto-show touch overlay on touch-capable devices
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+      var overlay = document.getElementById('touch-overlay');
+      if (overlay) overlay.style.display = 'flex';
+      var toggleBtn = document.getElementById('gamepad-toggle');
+      if (toggleBtn) toggleBtn.textContent = '🎮 HIDE PAD';
+    }
   });
 }
 
 // ColorKey map for em_indexed_blit (SDL_SetColorKey is a no-op in Emscripten)
 var MERITOUS_COLORKEYS = {};  // surf_ptr -> colorKey value (0..255) or undefined
+
+// IDBFS persistent save — mount before main() starts so the save file survives page reloads.
+Module.preRun = Module.preRun || [];
+Module.preRun.push(function() {
+  ENV.HOME = '/home/web_user';
+  try { FS.mkdir('/home'); } catch(e) {}
+  try { FS.mkdir('/home/web_user'); } catch(e) {}
+  FS.mount(IDBFS, {}, '/home/web_user');
+  addRunDependency('idbfs-sync');
+  FS.syncfs(true, function(err) {
+    if (err) console.warn('IDBFS initial load:', err);
+    removeRunDependency('idbfs-sync');
+  });
+});
