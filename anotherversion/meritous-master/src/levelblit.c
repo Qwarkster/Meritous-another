@@ -1404,28 +1404,34 @@ int DungeonPlay(char *fname)
 			iy = player_y;
 			off_x = 0;
 			off_y = 0;
+			/* Normalize diagonal movement: sqrt(2) factor keeps diagonal speed
+			   equal to cardinal speed rather than 41% faster. */
+			{
+			float diag = ((key_held[K_UP] != key_held[K_DN]) && (key_held[K_LT] != key_held[K_RT])) ? 0.707f : 1.0f;
+			float walk_spd = player_walk_speed * (artifacts[4]?1.4f:1.0f) * diag;
 			if (key_held[K_UP] && !key_held[K_DN]) {
-				iy -= player_walk_speed * (artifacts[4]?1.4:1);
+				iy -= (int)walk_spd;
 				player_dir = 0;
 			}
 			if (key_held[K_DN] && !key_held[K_UP]) {
-				iy += player_walk_speed * (artifacts[4]?1.4:1);;
+				iy += (int)walk_spd;
 				player_dir = 1;
 				off_y = 24;
 			}
 			if (key_held[K_LT] && !key_held[K_RT]) {
-				ix -= player_walk_speed * (artifacts[4]?1.4:1);;
+				ix -= (int)walk_spd;
 				if (!(key_held[K_UP] || key_held[K_DN])) {
 					player_dir = 3;
 				}
 			}
 			if (key_held[K_RT] && !key_held[K_LT]) {
 				off_x = 16;
-				ix += player_walk_speed * (artifacts[4]?1.4:1);;
+				ix += (int)walk_spd;
 				if (!(key_held[K_UP] || key_held[K_DN])) {
 					player_dir = 2;
 					
 				}
+			}
 			}
 			if ((key_held[K_SP])&&(magic_circuit >= 0)) {
 				magic_circuit += (circuit_fillrate * (3+training+(circuit_fillrate==30))/3);

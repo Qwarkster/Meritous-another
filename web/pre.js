@@ -43,23 +43,45 @@ if (typeof document !== 'undefined') {
     }
 
     // Touch input via document-level capture listeners.
-    // Using capture phase ensures we get the event before any SDL handlers.
-    // Using coordinate hit-test avoids issues with pointer capture / delegation.
-    function touchKey(e, val) {
+    // touchMap tracks identifier → [keys] so touchend always releases the right keys
+    // even if the finger slides off the button before lifting (slide-off fix).
+    // Buttons use data-key (single) or data-keys (space-separated, for diagonals).
+    var touchMap = {};
+
+    function getKeysForEl(el) {
+      while (el && el !== document.body) {
+        if (el.dataset) {
+          if (el.dataset.keys) return el.dataset.keys.split(' ').filter(function(k) { return MERITOUS_KEYS.hasOwnProperty(k); });
+          if (el.dataset.key && MERITOUS_KEYS.hasOwnProperty(el.dataset.key)) return [el.dataset.key];
+        }
+        el = el.parentElement;
+      }
+      return [];
+    }
+
+    function touchStart(e) {
       for (var i = 0; i < e.changedTouches.length; i++) {
         var t = e.changedTouches[i];
-        var el = document.elementFromPoint(t.clientX, t.clientY);
-        // Walk up to find data-key in case touch is on a child span
-        while (el && !el.dataset.key && el !== document.body) el = el.parentElement;
-        if (el && el.dataset && el.dataset.key && MERITOUS_KEYS.hasOwnProperty(el.dataset.key)) {
-          MERITOUS_KEYS[el.dataset.key] = val;
-          if (val) e.preventDefault();
+        var keys = getKeysForEl(document.elementFromPoint(t.clientX, t.clientY));
+        if (keys.length) {
+          touchMap[t.identifier] = keys;
+          for (var j = 0; j < keys.length; j++) MERITOUS_KEYS[keys[j]] = 1;
+          e.preventDefault();
         }
       }
     }
-    document.addEventListener('touchstart',  function(e) { touchKey(e, 1); }, { capture: true, passive: false });
-    document.addEventListener('touchend',    function(e) { touchKey(e, 0); }, { capture: true, passive: false });
-    document.addEventListener('touchcancel', function(e) { touchKey(e, 0); }, { capture: true, passive: true  });
+    function touchEnd(e) {
+      for (var i = 0; i < e.changedTouches.length; i++) {
+        var id = e.changedTouches[i].identifier;
+        if (touchMap[id]) {
+          for (var j = 0; j < touchMap[id].length; j++) MERITOUS_KEYS[touchMap[id][j]] = 0;
+          delete touchMap[id];
+        }
+      }
+    }
+    document.addEventListener('touchstart',  touchStart, { capture: true, passive: false });
+    document.addEventListener('touchend',    touchEnd,   { capture: true, passive: false });
+    document.addEventListener('touchcancel', touchEnd,   { capture: true, passive: true  });
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', mkDOMSetup);

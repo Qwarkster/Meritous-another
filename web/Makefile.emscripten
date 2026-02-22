@@ -7,7 +7,8 @@
 # Requires: source ~/tools/emsdk/emsdk_env.sh before running
 #
 
-BUILD_ID := $(shell git rev-parse --short HEAD 2>/dev/null || echo "dev")-$(shell date -u +%Y%m%d)
+# Build ID: use CI run number when available (set via WORKFLOW_RUN env), else local datetime
+BUILD_ID := $(if $(WORKFLOW_RUN),run-$(WORKFLOW_RUN) $(shell date -u '+%Y-%m-%d'),$(shell date -u '+%Y-%m-%d %H:%M UTC'))
 
 SRCDIR  = anotherversion/meritous-master/src
 OUTDIR  = web
@@ -61,7 +62,7 @@ default: $(OUTDIR)/index.html
 $(OUTDIR)/index.html: $(SRCS) web/shell.html web/pre.js
 	@mkdir -p $(OUTDIR)
 	emcc $(EM_FLAGS) $(SRCS) -o $(OUTDIR)/index.html
-	@sed -i 's/BUILD_ID_PLACEHOLDER/$(BUILD_ID)/' $(OUTDIR)/index.html
+	@sed -i "s|BUILD_ID_PLACEHOLDER|$(BUILD_ID)|" $(OUTDIR)/index.html
 
 clean:
 	rm -f $(OUTDIR)/index.html $(OUTDIR)/index.js \
