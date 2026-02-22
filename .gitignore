@@ -1,0 +1,17 @@
+# Downloaded archives (extracted content is committed instead)
+anotherversion/*.zip
+
+# Emscripten build outputs
+web/meritous.html
+web/meritous.js
+web/meritous.wasm
+web/meritous.data
+web/meritous.worker.js
+
+# Native build artifacts
+meritous_v12_src/meritous
+meritous_v12_src/src/*.o
+
+# Editor
+*.swp
+.DS_Store

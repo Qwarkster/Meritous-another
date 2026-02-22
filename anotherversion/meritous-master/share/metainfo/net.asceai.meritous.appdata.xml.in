@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (C) 2019  Sylvain Beucler -->
+<component type="desktop-application">
+  <id>net.asceai.meritous</id>
+  <launchable type="desktop-id">net.asceai.meritous.desktop</launchable>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0+</project_license>
+  <categories>
+    <category>Game</category>
+    <category>ActionGame</category>
+    <category>AdventureGame</category>
+  </categories>
+  <content_rating type="oars-1.1">
+    <content_attribute id="violence-cartoon">moderate</content_attribute>
+  </content_rating>
+  <_name>Meritous</_name>
+  <_summary>Action-adventure dungeon crawl game</_summary>
+  <description>
+    <_p>
+Far below the surface of the planet is a secret.  A place of limitless
+power. Those that seek to control such a utopia will soon bring an end
+to themselves. Seeking an end to the troubles that plague him, PSI
+user MERIT journeys into the hallowed Orcus Dome in search of answers.
+    </_p>
+    <_p>
+Meritous is a action-adventure game with simple controls but a
+challenge to find a balance of power verses recovery time during
+real-time battles. Set in a procedurally generated world, the player
+can explore thousands of rooms in search of powerful artifacts, tools
+to help them, and to eventually free the Orcus Dome from evil.
+    </_p>
+  </description>
+  <url type="homepage">https://gitlab.com/meritous</url>
+  <url type="donation">https://www.beuc.net/donate/</url>
+  <update_contact>beuc@beuc.net</update_contact>
+  <screenshots>
+    <screenshot>
+      <_caption>Title screen</_caption>
+      <image>https://gitlab.com/meritous/meritous/wikis/uploads/90872cd501633e0c62e5244777fb8f76/a.png</image>
+    </screenshot>
+    <screenshot type="default">
+      <_caption>Upgrading attack</_caption>
+      <image>https://gitlab.com/meritous/meritous/wikis/uploads/a705d0b01ef64f928e14a121a1b216ce/b.png</image>
+    </screenshot>
+    <screenshot>
+      <image>http://asceai.net/meritous/scr/screen2_full.png</image>
+    </screenshot>
+    <screenshot>
+      <image>http://asceai.net/meritous/scr/screen3_full.png</image>
+    </screenshot>
+    <screenshot>
+      <image>http://asceai.net/meritous/scr/screen4_full.png</image>
+    </screenshot>
+  </screenshots>
+ <translation type="gettext">meritous</translation>
+</component>

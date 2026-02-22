@@ -1,0 +1,7 @@
+src/*.o
+src/*.d
+po/*.mo
+meritous
+AndroidData/dat-*.zip
+SaveFile.sav
+*~

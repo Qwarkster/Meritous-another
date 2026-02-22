@@ -1,0 +1,13 @@
+# files added by intltool-prepare
+share/applications/net.asceai.meritous.desktop.in
+share/metainfo/net.asceai.meritous.appdata.xml.in
+src/levelblit.c
+src/mapgen.c
+src/demon.c
+src/gamemap.c
+src/tiles.c
+src/save.c
+src/help.c
+src/audio.c
+src/boss.c
+src/ending.c

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+_Name=Meritous
+_Comment=Action-adventure dungeon crawl game
+Icon=meritous
+Exec=meritous
+Terminal=false
+Categories=Game;ActionGame;AdventureGame;
+Keywords=Merit;PSI;circuit;Orcus;Dome;

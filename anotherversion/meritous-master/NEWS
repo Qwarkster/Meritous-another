@@ -1,0 +1,40 @@
+v1.6
+
+    - UNRELEASED
+
+v1.5
+
+    - Basic i18n support
+    - Import manpage and .destop file from Debian
+    - Add AppStream metadata for GNU/Linux software centers
+    - Hi-resolution icon for GNU/Linux software centers
+    - Revamp build system
+
+v1.4
+
+    - Doc fixes
+
+v1.3
+
+    - New maintainer: Sylvain Beucler
+    - Android port
+    - Can skip intro logo animation
+    - Patches from Debian:
+      - make music files optional
+      - savegames optionally in $HOME (-DSAVES_IN_HOME)
+      - data files location configurable (-DDATADIR)
+      - bugfixes
+
+v1.2
+
+    - Fixed a bug that only seemed to be affecting some Linux environments.
+    - GPLed the source.
+
+v1.1
+
+    - Holding space while viewing the auto map now allows you to scroll around much faster.
+    - Some issues associated with boss dialog not appearing have been fixed.
+
+v1.0
+
+    - First public release of Meritous. 

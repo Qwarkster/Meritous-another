@@ -1,0 +1,971 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-02-25 00:16+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../share/applications/net.asceai.meritous.desktop.in.h:1
+#: ../share/metainfo/net.asceai.meritous.appdata.xml.in.h:1
+msgid "Meritous"
+msgstr ""
+
+#: ../share/applications/net.asceai.meritous.desktop.in.h:2
+#: ../share/metainfo/net.asceai.meritous.appdata.xml.in.h:2
+msgid "Action-adventure dungeon crawl game"
+msgstr ""
+
+#: ../share/metainfo/net.asceai.meritous.appdata.xml.in.h:3
+msgid ""
+"Far below the surface of the planet is a secret. A place of limitless power. "
+"Those that seek to control such a utopia will soon bring an end to "
+"themselves. Seeking an end to the troubles that plague him, PSI user MERIT "
+"journeys into the hallowed Orcus Dome in search of answers."
+msgstr ""
+
+#: ../share/metainfo/net.asceai.meritous.appdata.xml.in.h:4
+msgid ""
+"Meritous is a action-adventure game with simple controls but a challenge to "
+"find a balance of power verses recovery time during real-time battles. Set "
+"in a procedurally generated world, the player can explore thousands of rooms "
+"in search of powerful artifacts, tools to help them, and to eventually free "
+"the Orcus Dome from evil."
+msgstr ""
+
+#: ../share/metainfo/net.asceai.meritous.appdata.xml.in.h:5
+msgid "Title screen"
+msgstr ""
+
+#: ../share/metainfo/net.asceai.meritous.appdata.xml.in.h:6
+msgid "Upgrading attack"
+msgstr ""
+
+#: ../src/levelblit.c:501
+#, c-format
+msgid "Cannot open %s: %s\n"
+msgstr ""
+
+#: ../src/levelblit.c:503
+#, c-format
+msgid "Make sure the game data is installed.\n"
+msgstr ""
+
+#: ../src/levelblit.c:589
+msgid "Continue"
+msgstr ""
+
+#: ../src/levelblit.c:590
+msgid "New Game"
+msgstr ""
+
+#: ../src/levelblit.c:591
+msgid "New Game (Wuss mode)"
+msgstr ""
+
+#: ../src/levelblit.c:721
+msgid "Loading... please wait"
+msgstr ""
+
+#: ../src/levelblit.c:727
+msgid "Saving... please wait"
+msgstr ""
+
+#: ../src/levelblit.c:1062
+#, c-format
+msgid "Psi Crystals: %d"
+msgstr ""
+
+#: ../src/levelblit.c:1064
+#, c-format
+msgid "Explored: %.1f%% (%d/%d rooms)"
+msgstr ""
+
+#: ../src/levelblit.c:1066
+#, c-format
+msgid "Cleared: %.1f%% (%d/%d monsters)"
+msgstr ""
+
+#: ../src/levelblit.c:1069
+msgid "Reflect shield"
+msgstr ""
+
+#: ../src/levelblit.c:1072
+msgid "Circuit charge"
+msgstr ""
+
+#: ../src/levelblit.c:1075
+msgid "Circuit refill"
+msgstr ""
+
+#: ../src/levelblit.c:1080
+msgid "Use the movement keys to locate a checkpoint. Press button 1 to"
+msgstr ""
+
+#: ../src/levelblit.c:1081
+msgid "teleport to this checkpoint. Press Back or 3 once you are done."
+msgstr ""
+
+#: ../src/levelblit.c:1083
+msgid "Use the movement keys to locate a checkpoint. Press ENTER to"
+msgstr ""
+
+#: ../src/levelblit.c:1084
+msgid "teleport to this checkpoint. Press ESCAPE or TAB once you are done."
+msgstr ""
+
+#: ../src/levelblit.c:1150
+msgid "Paused"
+msgstr ""
+
+#: ../src/levelblit.c:1179
+msgid "Are you sure you want to quit?"
+msgstr ""
+
+#: ../src/levelblit.c:1181
+msgid "Press button 2 to confirm."
+msgstr ""
+
+#: ../src/levelblit.c:1183
+msgid "Press enter to confirm."
+msgstr ""
+
+#: ../src/levelblit.c:1317
+msgid "G A M E   O V E R"
+msgstr ""
+
+#: ../src/levelblit.c:2010
+msgid "Psi Circuit"
+msgstr ""
+
+#: ../src/levelblit.c:2505
+#, c-format
+msgid "This is a checkpoint, but it doesn't seem to be working"
+msgstr ""
+
+#: ../src/levelblit.c:2509
+#, c-format
+msgid "This is a checkpoint. You will return here when you die."
+msgstr ""
+
+#: ../src/levelblit.c:2512
+#, c-format
+msgid "Press button 2 to teleport between checkpoints."
+msgstr ""
+
+#: ../src/levelblit.c:2514
+#, c-format
+msgid "Press ENTER to teleport between checkpoints."
+msgstr ""
+
+#: ../src/levelblit.c:2520
+#, c-format
+msgid "Press button 2 to open the storage chest"
+msgstr ""
+
+#: ../src/levelblit.c:2522
+#, c-format
+msgid "Press ENTER to open the storage chest"
+msgstr ""
+
+#: ../src/levelblit.c:2527
+#, c-format
+msgid "Your shield is already at full efficiency"
+msgstr ""
+
+#: ../src/levelblit.c:2530
+#, c-format
+msgid "Press button 2 to upgrade shields (%d crystals)"
+msgstr ""
+
+#: ../src/levelblit.c:2532
+#, c-format
+msgid "Press ENTER to upgrade shields (%d crystals)"
+msgstr ""
+
+#: ../src/levelblit.c:2538
+#, c-format
+msgid "Your circuit charge rate is already at its highest"
+msgstr ""
+
+#: ../src/levelblit.c:2541
+#, c-format
+msgid "Press button 2 to upgrade circuit charge (%d crystals)"
+msgstr ""
+
+#: ../src/levelblit.c:2543
+#, c-format
+msgid "Press ENTER to upgrade circuit charge (%d crystals)"
+msgstr ""
+
+#: ../src/levelblit.c:2549
+#, c-format
+msgid "Your circuit refill rate is already at its highest"
+msgstr ""
+
+#: ../src/levelblit.c:2552
+#, c-format
+msgid "Press button 2 to upgrade circuit refill (%d crystals)"
+msgstr ""
+
+#: ../src/levelblit.c:2554
+#, c-format
+msgid "Press ENTER to upgrade circuit refill (%d crystals)"
+msgstr ""
+
+#: ../src/levelblit.c:2560
+#, c-format
+msgid "Press button 2 to record your progress"
+msgstr ""
+
+#: ../src/levelblit.c:2562
+#, c-format
+msgid "Press ENTER to record your progress"
+msgstr ""
+
+#: ../src/levelblit.c:2567
+#, c-format
+msgid "This is a crystal device. It isn't working at the moment."
+msgstr ""
+
+#: ../src/levelblit.c:2570
+#, c-format
+msgid "Press button 2 to activate the crystal device"
+msgstr ""
+
+#: ../src/levelblit.c:2572
+#, c-format
+msgid "Press ENTER to activate the crystal device"
+msgstr ""
+
+#: ../src/levelblit.c:2581
+#, c-format
+msgid ""
+"The artifact is tainted with shadow. You must slay more of the shadow first."
+msgstr ""
+
+#: ../src/levelblit.c:2592
+#, c-format
+msgid "Press 4 to read the help file"
+msgstr ""
+
+#: ../src/levelblit.c:2594
+#, c-format
+msgid "Press H to read the help file"
+msgstr ""
+
+#: ../src/levelblit.c:2605
+#, c-format
+msgid "Ancient artifact: Complete Map"
+msgstr ""
+
+#: ../src/levelblit.c:2606
+#, c-format
+msgid "Ancient artifact: Shield boost"
+msgstr ""
+
+#: ../src/levelblit.c:2607
+#, c-format
+msgid "Ancient artifact: Extra crystal efficiency"
+msgstr ""
+
+#: ../src/levelblit.c:2608
+#, c-format
+msgid "Ancient artifact: Circuit booster"
+msgstr ""
+
+#: ../src/levelblit.c:2609
+#, c-format
+msgid "Ancient artifact: Metabolism increase"
+msgstr ""
+
+#: ../src/levelblit.c:2610
+#, c-format
+msgid "Ancient artifact: Dodge enhancer"
+msgstr ""
+
+#: ../src/levelblit.c:2611
+#, c-format
+msgid "Ancient artifact: Ethereal Monocle"
+msgstr ""
+
+#: ../src/levelblit.c:2612
+#, c-format
+msgid "Ancient artifact: Crystal gatherer"
+msgstr ""
+
+#: ../src/levelblit.c:2614
+#, c-format
+msgid "Enhancement: Shield upgrade"
+msgstr ""
+
+#: ../src/levelblit.c:2615
+#, c-format
+msgid "Enhancement: Circuit charge upgrade"
+msgstr ""
+
+#: ../src/levelblit.c:2616
+#, c-format
+msgid "Enhancement: Circuit refill upgrade"
+msgstr ""
+
+#: ../src/levelblit.c:2618
+#, c-format
+msgid "Reward: Psi crystals"
+msgstr ""
+
+#: ../src/levelblit.c:2620
+#, c-format
+msgid "Holy Sword 'Balmung' answers your call"
+msgstr ""
+
+#: ../src/levelblit.c:2621
+#, c-format
+msgid "Mystic Halberd 'Amenonuhoko' answers your call"
+msgstr ""
+
+#: ../src/levelblit.c:2622
+#, c-format
+msgid "Divine Bow 'Gandiva' answers your call"
+msgstr ""
+
+#: ../src/levelblit.c:2623
+#, c-format
+msgid "You capture the cursed seal. Return to the entrance"
+msgstr ""
+
+#: ../src/levelblit.c:2625
+#, c-format
+msgid "Balmung will remain here, where the ley lines are strong"
+msgstr ""
+
+#: ../src/levelblit.c:2626
+#, c-format
+msgid "Amenonuhoko will remain here, where the ley lines are strong"
+msgstr ""
+
+#: ../src/levelblit.c:2627
+#, c-format
+msgid "Gandiva will remain here, where the ley lines are strong"
+msgstr ""
+
+#: ../src/levelblit.c:2629
+#, c-format
+msgid ". . . . . .   retrieved 'Agate Knife'"
+msgstr ""
+
+#: ../src/levelblit.c:2631
+#, c-format
+msgid "ERROR: NO MESSAGE VALUE GIVEN"
+msgstr ""
+
+#: ../src/save.c:145
+#, c-format
+msgid ""
+"Parity byte in error (%x != 0x7C)\n"
+"Aborting\n"
+msgstr ""
+
+#: ../src/boss.c:77
+msgid "Holy Sword 'Balmung'"
+msgstr ""
+
+#: ../src/boss.c:78
+msgid "Mystic Halberd 'Amenonuhoko'"
+msgstr ""
+
+#: ../src/boss.c:79
+msgid "Divine Bow 'Gandiva'"
+msgstr ""
+
+#: ../src/boss.c:80
+msgid "Cursed Seal of Yahveh"
+msgstr ""
+
+#: ../src/boss.c:97
+msgid ""
+"MERIDIAN:\n"
+"  \n"
+"  Different...\n"
+"  \n"
+"  Your PSI is different. Your magic is perverse. Poisonous. Treacherous."
+msgstr ""
+
+#: ../src/boss.c:104
+msgid ""
+"MERIT:\n"
+"  \n"
+"  Nothing but darkness carried on the wind of a curse. It's amazing that "
+"you\n"
+"  are able to communicate with me at all. Surely a statement on the "
+"perversity\n"
+"  of my magic, coming from you, is more than a little bit hypocritical."
+msgstr ""
+
+#: ../src/boss.c:111
+msgid ""
+"MERIDIAN:\n"
+"  \n"
+"  So. You've even brought that tainted thing with you.\n"
+"  That does not really surprise me, but nonetheless, your weak, impure PSI\n"
+"  will do you little good against one manifest of shadows. Pitiful thing "
+"from\n"
+"  the surface, MERIDIAN shall return you to the dust from whence you came!"
+msgstr ""
+
+#: ../src/boss.c:122
+msgid ""
+"ATARAXIA:\n"
+"  \n"
+"  It felt nearly as inconsequential as a stilling in the breeze, but there "
+"was\n"
+"  more to it, wasn't it? It feels as though I lost a part of myself. Was "
+"that\n"
+"  your doing?"
+msgstr ""
+
+#: ../src/boss.c:129
+msgid ""
+"MERIT:\n"
+"  \n"
+"  Moving Ochra's Keys from the ley lines was only the start, am I correct?\n"
+"  Nonetheless, what you've already caused is enough. The Keys were placed "
+"to\n"
+"  prevent corruption in the PSI. Moving them renders the PSI unusable. "
+"There\n"
+"  is nothing to be gained from THAT."
+msgstr ""
+
+#: ../src/boss.c:137
+msgid ""
+"ATARAXIA:\n"
+"  \n"
+"  Statements like that belie your youthful naivety and ignorance. There is "
+"no\n"
+"  way to make magic unusable. What you see now is the other side of PSI "
+"that\n"
+"  pitiful beings such as yourself turn a blind eye to. Like the sun at dawn\n"
+"  the sun at dusk, it is nonetheless the same sun, and each beautiful in "
+"its\n"
+"  own way. PSI isn't just for things like you, but for the entire cosmos.\n"
+"  Nothing can be gained by preventing it from taking its natural course."
+msgstr ""
+
+#: ../src/boss.c:147
+msgid ""
+"MERIT:\n"
+"  \n"
+"  You delude yourself with the crazed whisperings from the muck that "
+"spawned\n"
+"  you. You say that this PSI is still PSI, but it is not. PSI is the energy "
+"of\n"
+"  creation. This is the energy of destruction. PSI is a pure force, "
+"gathered\n"
+"  from around me and targeted with my mind. This is a foul mixture, "
+"existing\n"
+"  as half-mad corruptions like you. It can only break apart when confronted\n"
+"  with true power."
+msgstr ""
+
+#: ../src/boss.c:157
+msgid ""
+"ATARAXIA:\n"
+"  \n"
+"  You realise that not even your fellow PSI users agree with you? But, it "
+"is\n"
+"  of little consequence. I'll show you the true beauty of that which you "
+"shun\n"
+"  by smothering you in it and turning your flesh into fuel for the PSI that\n"
+"  runs through the veins of this Dome!"
+msgstr ""
+
+#: ../src/boss.c:168
+msgid ""
+"MERODACH:\n"
+"  \n"
+"  e v e r y t h i n g   h a s   t u r n e d   t o   d a r k n e s s\n"
+"  \n"
+"  n o   s o u n d   n o   l i g h t   n o   s e n s a t i o n\n"
+"  \n"
+"  w a s   t h i s   w h a t   y o u   w e r e   a f t e r   f r o m\n"
+"  \n"
+"  t h e   b e g i n n i n g ?"
+msgstr ""
+
+#: ../src/boss.c:179
+msgid ""
+"MERODACH\n"
+"  \n"
+"  i ' l l   w r a p   m y   r e m a i n i n g   P S I   a r o u n d   y o u\n"
+"  \n"
+"  a n d   e x t i n g u i s h   t h a t   l i f e   o f   y o u r s\n"
+"  \n"
+"  l e t ' s   s e e   h o w   y o u   e n j o y   e t e r n a l   r e s t"
+msgstr ""
+
+#: ../src/boss.c:191
+msgid ""
+"MERIT:\n"
+"  \n"
+"  ANIXIL? So, that's how it is. I assume you worked out a way of using the\n"
+"  PSI in this state. So, not happy with your allotted PSI from the Dome, "
+"you\n"
+"  decided to render it in this form and take it all for yourself.\n"
+"  What was your reasoning for doing something this rash, though?"
+msgstr ""
+
+#: ../src/boss.c:200
+msgid ""
+"WERVYN ANIXIL:\n"
+"  \n"
+"  All you seem to do is complain. That's what I've discovered through this,\n"
+"  and it's definitely part of the reason I did it. I do creative things "
+"like\n"
+"  this sort of 'punishment' because it lets me better understand the nature "
+"of\n"
+"  all the forces involved. It tells me that you, MERIT, really do not have "
+"a\n"
+"  clue how to relate to other PSI users, and that for the most part you're\n"
+"  entirely self-absorbed. It tells me that, while PSI users in general "
+"doesn't\n"
+"  really 'get' the ethos of the forces involved here, and that the rerendered"
+msgstr ""
+
+#: ../src/boss.c:212
+msgid ""
+"WERVYN ANIXIL:\n"
+"  \n"
+"  PSI, as intelligent as it is, pretty much entirely understands it, though "
+"it\n"
+"  was mistaken that the rendering of this form was intentional.\n"
+"  \n"
+"  Regarding that, by the way, THAT is the reason I thought you needed a\n"
+"  punishment. Making ridiculously inefficient, wasteful use of the limited "
+"PSI\n"
+"  we have available wouldn't have been a problem if it was just the normal "
+"PSI\n"
+"  like we'd planned it to be. But you knew full well that PSI users who "
+"wanted"
+msgstr ""
+
+#: ../src/boss.c:224
+msgid ""
+"WERVYN ANIXIL:\n"
+"  \n"
+"  nothing to do with it were being greatly inconvenienced by usage clogging "
+"up\n"
+"  the limited ley-lines we have. That makes you an asshole, a deliberate "
+"prick\n"
+"  to everyone in the world because you thought you could get away with it, "
+"and\n"
+"  that it wouldn't matter.\n"
+"  \n"
+"  I also take issue with this nonsense about your punishment being severe,\n"
+"  because it's not. You can still use your PSI as you used it before, to a"
+msgstr ""
+
+#: ../src/boss.c:236
+msgid ""
+"WERVYN ANIXIL:\n"
+"  \n"
+"  similar level of effectiveness. I specifically allowed access to THIS "
+"form\n"
+"  of PSI so that you couldn't complain that you couldn't use magic. Now\n"
+"  exiling you to the Dome had multiple meanings. One was to effectively "
+"tell\n"
+"  you, 'I don't think you have anything of value to do, so I'm putting you "
+"in\n"
+"  a place where no one does anything of value.' I still think that, by the\n"
+"  way. Another was, like I said, to see what you would do. Maybe you would\n"
+"  actually cast something worth the PSI, then. Or maybe you would take the"
+msgstr ""
+
+#: ../src/boss.c:248
+msgid ""
+"WERVYN ANIXIL:\n"
+"  \n"
+"  hint and just stop it for the week until I decided you'd had enough. But "
+"you\n"
+"  couldn't do either of those things, because all you do is complain.\n"
+"  \n"
+"  I want you to take a look at yourself and ask what you want to accomplish\n"
+"  here, and what you think is keeping you here. Obviously you have some\n"
+"  attachment, even though you keep saying the new PSI is worthless. This "
+"isn't"
+msgstr ""
+
+#: ../src/boss.c:259
+msgid ""
+"WERVYN ANIXIL:\n"
+"  \n"
+"  true, of course, ATARAXIA really captures a good point here. For the most\n"
+"  part, PSI users just find you extremely annoying because you continually "
+"set\n"
+"  yourself at odds with pretty much every kind of PSI usage but your own, "
+"and\n"
+"  then complain about it. Do you want things to be different? They "
+"certainly\n"
+"  can be. 'EVEN IF I DO CHANGE, THEN MY PSI WON'T BE GOOD ENOUGH!' That's\n"
+"  bullshit. All other PSI users seem to be on the path to figuring out how "
+"to\n"
+"  just use it. You can too."
+msgstr ""
+
+#: ../src/boss.c:271
+msgid ""
+"WERVYN ANIXIL:\n"
+"  \n"
+"  Your 'punishment' is up tomorrow, I'd only planned to do it for a week. "
+"Of\n"
+"  course, you can continue complaining, and I may have to think of "
+"something\n"
+"  else to do to you. But I'm not going to kill you. If you want to leave "
+"this\n"
+"  mortal coil because you can't take it anymore, then leave. If you don't "
+"want\n"
+"  to leave, then start working out your issues with the new PSI, I actually\n"
+"  would love to help. And if you don't want to do that, then I'm sorry, but\n"
+"  you're going to continue being useless at magic, because the way you are"
+msgstr ""
+
+#: ../src/boss.c:283
+msgid ""
+"WERVYN ANIXIL:\n"
+"  \n"
+"  now, it's not surprising at all that your PSI ability is as stunted as it\n"
+"  is."
+msgstr ""
+
+#: ../src/boss.c:290
+msgid ""
+"MERIT:\n"
+"  \n"
+"  The tainted PSI has driven even you mad. Mad with power. This is a blow I\n"
+"  I must strike, for everyone. For humanity."
+msgstr ""
+
+#: ../src/boss.c:297
+msgid ""
+"WERVYN ANIXIL:\n"
+"  \n"
+"  I'll meet you at the point of diminishing returns."
+msgstr ""
+
+#: ../src/boss.c:305
+msgid ""
+"MERIT:\n"
+"  \n"
+"  ANIXIL? So, that's how it is. I assume you worked out a way of using the\n"
+"  PSI in this state. So, not happy with your allotted PSI from the Dome, "
+"you\n"
+"  decided to render it in this form and take it all for yourself.\n"
+"  What was your reasoning for doing something this rash, though?\n"
+"  \n"
+"  That was what you wanted to hear, right?"
+msgstr ""
+
+#: ../src/boss.c:316
+msgid ""
+"WERVYN ANIXIL????:\n"
+"  \n"
+"  All you seem to do is complain. That's what I've discovered through this,\n"
+"  and it's definitely part of "
+"the ... ... ... ... ... ... ... ... ... ... ...\n"
+"  ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ...\n"
+"  ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ...\n"
+"  ... ... oh."
+msgstr ""
+
+#: ../src/boss.c:326
+msgid ""
+"MERIT:\n"
+"  \n"
+"  If I've learned anything in life, it's that things are often not quite as\n"
+"  they seem. You couldn't use the Agate Knife, so you attempted to hide it.\n"
+"  \n"
+"  Unfortunately for you, I found it and recognised it."
+msgstr ""
+
+#: ../src/boss.c:335
+msgid ""
+"WERVYN ANIXIL????:\n"
+"  \n"
+"  . . . . no. It's not just recognising the Knife at all. You were actually\n"
+"  able to use it, too.\n"
+"  \n"
+"  So. You too knew the secret?"
+msgstr ""
+
+#: ../src/boss.c:344
+msgid ""
+"MERIT:\n"
+"  \n"
+"  I was one of the few that he told.\n"
+"  \n"
+"  And so I know."
+msgstr ""
+
+#: ../src/boss.c:352
+msgid ""
+"????:\n"
+"  \n"
+"  Umm..."
+msgstr ""
+
+#: ../src/boss.c:358
+msgid ""
+"MERIT:\n"
+"  \n"
+"  Well, it wasn't a bad attempt. If I hadn't found THAT, I would never have\n"
+"  known.\n"
+"  \n"
+"  Now that that's taken care of, I might as well finish what I came here "
+"for.\n"
+"  Prepare yourself."
+msgstr ""
+
+#: ../src/boss.c:368
+msgid ""
+"????:\n"
+"  \n"
+"  I won't hold back! There's not a lot of point, now."
+msgstr ""
+
+#: ../src/ending.c:169
+msgid "Merit released the locks on the PSI flowing through the Dome,"
+msgstr ""
+
+#: ../src/ending.c:170
+msgid "releasing the flow of PSI into the atmosphere."
+msgstr ""
+
+#: ../src/ending.c:172
+msgid "The Orcus Dome was originally built to centralise the limited"
+msgstr ""
+
+#: ../src/ending.c:173
+msgid "PSI available to everyone. However, this made the existing"
+msgstr ""
+
+#: ../src/ending.c:174
+msgid "reserves more vulnerable to malicious PSI users"
+msgstr ""
+
+#: ../src/ending.c:176
+msgid "While other PSI users initially resented Merit for his rash"
+msgstr ""
+
+#: ../src/ending.c:177
+msgid "behaviour, they eventually adjusted to the decentralisation."
+msgstr ""
+
+#: ../src/ending.c:179
+msgid "Eventually, PSI users grew so adept at manipulating the"
+msgstr ""
+
+#: ../src/ending.c:180
+msgid "diluted flows of PSI that they were capable of the same things"
+msgstr ""
+
+#: ../src/ending.c:181
+msgid "as before. Each PSI user would keep their own individual"
+msgstr ""
+
+#: ../src/ending.c:182
+msgid "reserves of PSI for when they needed to weild greater power,"
+msgstr ""
+
+#: ../src/ending.c:183
+msgid "and the balance of power was restored."
+msgstr ""
+
+#: ../src/ending.c:185
+msgid "Merit decided to assume the role of custodian over the Orcus"
+msgstr ""
+
+#: ../src/ending.c:186
+msgid "Dome, in Wervyn Anixil's place. He resumed the experiments on"
+msgstr ""
+
+#: ../src/ending.c:187
+msgid "PSI and found ways of making the Dome's remaining supply go as"
+msgstr ""
+
+#: ../src/ending.c:188
+msgid "far as it could."
+msgstr ""
+
+#: ../src/ending.c:190
+msgid "Other PSI users were suspicious of MERIT, just as they were"
+msgstr ""
+
+#: ../src/ending.c:191
+msgid "wary of Wervyn Anixil before him, but they soon adjusted."
+msgstr ""
+
+#: ../src/ending.c:193
+msgid "The balance of power was quickly restored, and stabilised for"
+msgstr ""
+
+#: ../src/ending.c:194
+msgid "eternity due to the work of Wervyn Anixil and now MERIT."
+msgstr ""
+
+#: ../src/ending.c:197
+msgid "                      [[ BEST ENDING ]]"
+msgstr ""
+
+#: ../src/ending.c:289
+msgid "Concept:                    Lancer-X/Asceai"
+msgstr ""
+
+#: ../src/ending.c:290
+msgid "Game design:                Lancer-X/Asceai"
+msgstr ""
+
+#: ../src/ending.c:291
+msgid "Graphics:                   Lancer-X/Asceai"
+msgstr ""
+
+#: ../src/ending.c:292
+msgid "Programming:                Lancer-X/Asceai"
+msgstr ""
+
+#: ../src/ending.c:293
+msgid "Sound Effects:              Various (public domain) sources"
+msgstr ""
+
+#: ../src/ending.c:294
+msgid "Music:                      Various artists"
+msgstr ""
+
+#: ../src/ending.c:295
+msgid "Beta testing:               Quasar"
+msgstr ""
+
+#: ../src/ending.c:296
+msgid "Beta testing:               Terryn"
+msgstr ""
+
+#: ../src/ending.c:297
+msgid "Beta testing:               Wervyn"
+msgstr ""
+
+#: ../src/ending.c:298
+msgid "\"Ambient Light\"       Vogue of Triton"
+msgstr ""
+
+#: ../src/ending.c:299
+msgid "\"Battle of Ragnarok\"  Frostbite"
+msgstr ""
+
+#: ../src/ending.c:300
+msgid "\"Dragon Cave\"         TICAZ"
+msgstr ""
+
+#: ../src/ending.c:301
+msgid " cavern.xm            Unknown"
+msgstr ""
+
+#: ../src/ending.c:302
+msgid "\"Caverns Boss\"        Alexis Janson"
+msgstr ""
+
+#: ../src/ending.c:303
+msgid "\"Forest Boss\"         Alexis Janson"
+msgstr ""
+
+#: ../src/ending.c:304
+msgid "\"Catacombs Boss\"      Alexis Janson"
+msgstr ""
+
+#: ../src/ending.c:305
+msgid "\"Fear 2\"              Mick Rippon"
+msgstr ""
+
+#: ../src/ending.c:306
+msgid "\"The Final Battle\"    Goose/CDA & iNVASiON"
+msgstr ""
+
+#: ../src/ending.c:307
+msgid "\"Ice Frontier\"        Skaven/FC"
+msgstr ""
+
+#: ../src/ending.c:308
+msgid "\"KnarkLoader 1.0\"     Rapacious"
+msgstr ""
+
+#: ../src/ending.c:309
+msgid "\"RPG-Battle\"          Cyn"
+msgstr ""
+
+#: ../src/ending.c:310
+msgid "\"Metallic Forest\"     Joseph Fox"
+msgstr ""
+
+#: ../src/ending.c:511 ../src/ending.c:521
+msgid "Activating the seal quickly unblocked the ley lines and allowed"
+msgstr ""
+
+#: ../src/ending.c:512 ../src/ending.c:522
+msgid "PSI to flow through the Dome again. The remaining shadows were"
+msgstr ""
+
+#: ../src/ending.c:513 ../src/ending.c:523
+msgid "quickly flushed out."
+msgstr ""
+
+#: ../src/ending.c:515
+msgid "Wervyn Anixil's unconventional use of the PSI resulted in him"
+msgstr ""
+
+#: ../src/ending.c:516
+msgid "being burned out and rendered powerless. Merit will see to it"
+msgstr ""
+
+#: ../src/ending.c:517
+msgid "that he faces judgement for his crimes."
+msgstr ""
+
+#: ../src/ending.c:519
+msgid "Neither of the two PSI weapons housed within the Dome had been"
+msgstr ""
+
+#: ../src/ending.c:520
+msgid "touched. However . . ."
+msgstr ""
+
+#: ../src/ending.c:525
+msgid "The traitor, who was never identified, perished in the Sealing."
+msgstr ""
+
+#: ../src/ending.c:526
+msgid "It soon became clear that the traitor had managed to betray and"
+msgstr ""
+
+#: ../src/ending.c:527
+msgid "kill the real Wervyn Anixil during his experiments on the PSI."
+msgstr ""
+
+#: ../src/ending.c:528
+msgid "If the Agate Knife was never found, nobody would have been any"
+msgstr ""
+
+#: ../src/ending.c:529
+msgid "the wiser, and things could have turned out very differently."
+msgstr ""
+
+#: ../src/ending.c:530
+msgid "However, there was one last thing for MERIT to do."
+msgstr ""
