@@ -24,6 +24,7 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#include <locale.h>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <assert.h>
@@ -2575,7 +2576,7 @@ void SpecialTile(int x, int y)
 			break;
 		case 42:
 			if (rooms[player_room].room_type == 5) {
-				if (CanGetArtifact(rooms[player_room].room_param)) {
+				if (CanGetArtifact()) {
 					
 				} else {
 					sprintf(message, _("The artifact is tainted with shadow. You must slay more of the shadow first.") );

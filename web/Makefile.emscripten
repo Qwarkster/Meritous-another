@@ -1,0 +1,59 @@
+#
+# Makefile.emscripten
+#
+# Builds Meritous v1.6 to WebAssembly via Emscripten.
+# Run from the repo root: make -f web/Makefile.emscripten
+#
+# Requires: source ~/tools/emsdk/emsdk_env.sh before running
+#
+
+SRCDIR  = anotherversion/meritous-master/src
+OUTDIR  = web
+
+SRCS = \
+	$(SRCDIR)/audio.c \
+	$(SRCDIR)/boss.c \
+	$(SRCDIR)/demon.c \
+	$(SRCDIR)/ending.c \
+	$(SRCDIR)/gamemap.c \
+	$(SRCDIR)/help.c \
+	$(SRCDIR)/i18n.c \
+	$(SRCDIR)/levelblit.c \
+	$(SRCDIR)/mapgen.c \
+	$(SRCDIR)/save.c \
+	$(SRCDIR)/tiles.c
+
+# Asset directory to embed (path relative to meritous-master)
+DATADIR_SRC = anotherversion/meritous-master/dat
+
+# DATADIR as seen inside the Emscripten virtual FS
+DATADIR_FS  = /dat
+
+EM_FLAGS = \
+	-O2 \
+	-s USE_SDL=1 \
+	-s USE_SDL_IMAGE=1 \
+	-s SDL2_IMAGE_FORMATS='["png"]' \
+	-s USE_SDL_MIXER=1 \
+	-s SDL2_MIXER_FORMATS='["mod","wav","ogg"]' \
+	-s USE_ZLIB=1 \
+	-s ASYNCIFY \
+	-s ASYNCIFY_IGNORE_INDIRECT=1 \
+	-s ALLOW_MEMORY_GROWTH=1 \
+	-s INITIAL_MEMORY=67108864 \
+	-s FORCE_FILESYSTEM=1 \
+	-s EXIT_RUNTIME=0 \
+	--preload-file $(DATADIR_SRC)@$(DATADIR_FS) \
+	-DDATADIR='"$(DATADIR_FS)"' \
+	-DLOCALEDIR='""'
+
+default: $(OUTDIR)/meritous.html
+
+$(OUTDIR)/meritous.html: $(SRCS)
+	@mkdir -p $(OUTDIR)
+	emcc $(EM_FLAGS) $(SRCS) -o $(OUTDIR)/meritous.html
+
+clean:
+	rm -f $(OUTDIR)/meritous.html $(OUTDIR)/meritous.js \
+	      $(OUTDIR)/meritous.wasm $(OUTDIR)/meritous.data \
+	      $(OUTDIR)/meritous.worker.js

@@ -32,7 +32,7 @@ extern int boss_lives;
 
 void DrawPowerObject();
 void DrawArtifactOverhead(int p_obj);
-int CanGetArtifact();
+int CanGetArtifact(void);
 
 void BossRoom(int room);
 void BossControl();

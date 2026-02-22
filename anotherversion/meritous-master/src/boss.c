@@ -1767,7 +1767,7 @@ void DrawArtifactOverhead(int p_obj)
 	tick++;
 }
 
-int CanGetArtifact()
+int CanGetArtifact(void)
 {
 	int required_enemies;
 	int n_artifacts;

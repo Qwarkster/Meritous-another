@@ -24,7 +24,7 @@
 #ifndef SAVE_H
 #define SAVE_H
 
-void DoSaveGame();
+void DoSaveGame(char *filename);
 
 void FWInt(int val);
 void FWChar(unsigned char i);
@@ -39,6 +39,6 @@ void SaveGame(char *);
 void LoadGame(char *);
 void CloseFile();
 
-int IsSaveFile();
+int IsSaveFile(char *filename);
 
 #endif
