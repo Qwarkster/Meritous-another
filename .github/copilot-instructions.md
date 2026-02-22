@@ -5,44 +5,23 @@
 The goal of this project is to compile it to **WebAssembly** via **Emscripten** and deploy it as a
 playable web game on **Google Cloud Platform**.
 
-The original source lives in `meritous_v12_src/`. All web build artefacts live in `web/`.
+The source lives in `anotherversion/meritous-master/`. All web build artefacts live in `web/`.
 
 ---
 
 ## Source Version
 
-**Use `anotherversion/meritous-master/` (v1.6) as the build base**, not `meritous_v12_src/` (v1.2).
+The sole build source is **`anotherversion/meritous-master/` (v1.6)**. The original v1.2
+source has been removed. v1.6 improvements relevant to the web port:
+- **`DATADIR` macro** — all asset paths configurable at compile time
+- **Generic music system** — `PlayBackgroundMusic(n)` probes for `track{n}.ogg/.mp3/.s3m/.xm/.mod`; drop in OGG files with zero code changes
+- **`$HOME`-based save path** — easy to redirect to Emscripten IDBFS
+- **Debian bugfixes** — better error handling and NULL checks
 
-| | v1.2 (`meritous_v12_src/`) | v1.6 (`anotherversion/meritous-master/`) |
-|---|---|---|
-| Asset paths | Hardcoded `"dat/i/..."` | `DATADIR "/i/..."` macro — compile-time configurable |
-| Music system | Hardcoded `char *tracks[13]` array | `PlayBackgroundMusic(n)` looks for `track{n}.ogg/.mp3/.s3m/.xm/.mod` |
-| Music files | Included (questionable license) | **Removed** (not GPL-compatible) |
-| Save path | CWD `SaveFile.sav` | `~/.meritous.sav` via `$HOME` |
-| i18n | None | GNU gettext, French translation |
-| Bugfixes | Baseline | Debian patches, error handling |
-
-### Music File Setup (v1.6)
-v1.6 removed tracker music files due to licensing. Copy from v1.2 and **rename** using this index mapping:
-
-| Index | Original filename | Rename to |
-|---|---|---|
-| 0 | `ICEFRONT.S3M` | `track0.s3m` |
-| 1 | `cavern.xm` | `track1.xm` |
-| 2 | `cave.xm` | `track2.xm` |
-| 3 | `cave06.s3m` | `track3.s3m` |
-| 4 | `Wood.s3m` | `track4.s3m` |
-| 5 | `iller_knarkloader_final.xm` | `track5.xm` |
-| 6 | `fear2.mod` | `track6.mod` |
-| 7 | `Cv_boss.mod` | `track7.mod` |
-| 8 | `Fr_boss.mod` | `track8.mod` |
-| 9 | `CT_BOSS.MOD` | `track9.mod` |
-| 10 | `rpg_bat1.xm` | `track10.xm` |
-| 11 | `amblight.xm` | `track11.xm` |
-| 12 | `FINALBAT.s3m` | `track12.s3m` |
-
-For the **web/public deployment**, replace with OGG files (`track{N}.ogg`) — OGG is natively
-supported in all major browsers and Emscripten SDL_mixer supports it via `-s SDL2_MIXER_FORMATS='["ogg"]'`.
+### Music Files
+v1.6 ships without music files (tracker files are not GPL-compatible). The game runs
+silently without them. For deployment, provide free/CC-licensed OGG files named
+`dat/m/track0.ogg` through `dat/m/track12.ogg`. The music system picks OGG first automatically.
 
 ---
 
@@ -76,7 +55,7 @@ dat/a/   WAV sound effects
 dat/m/   MOD/S3M/XM music tracks
 dat/d/   Binary data files, font, help text, location descriptors
 ```
-The game expects to be run from the `meritous_v12_src/` directory so all
+The game is run from the `anotherversion/meritous-master/` directory so all
 `dat/` paths resolve correctly.
 
 ---
@@ -166,9 +145,9 @@ EM_ASM(FS.syncfs(false, function(err) {}););
 - Do NOT add `emscripten_set_main_loop` unless explicitly restructuring the loop
 
 ### File paths
-- Source currently uses bare relative paths: `"dat/i/title.png"`
-- With `--preload-file dat`, Emscripten's virtual FS mirrors this exactly — no path changes needed
-- Save file path (from `save.c`) must be redirected to an IDBFS-mounted directory
+- v1.6 uses `DATADIR "/i/title.png"` — set `-DDATADIR='"/dat"'` for Emscripten builds
+- With `--preload-file dat`, Emscripten's virtual FS mirrors the `dat/` directory exactly
+- Save file path uses `$HOME/.meritous.sav` — redirect to an IDBFS-mounted directory in browser
 
 ---
 
@@ -176,13 +155,8 @@ EM_ASM(FS.syncfs(false, function(err) {}););
 
 ### Native test
 ```bash
-# v1.2 (baseline verification)
-cd meritous_v12_src && make && ./meritous
-
-# v1.6 (primary build base)
 cd anotherversion/meritous-master
-# First, copy & rename music files from v1.2 into dat/m/ (see track index mapping above)
-make CPPFLAGS="-DDATADIR='\"dat\"'"
+make pkgdatadir=dat
 ./meritous
 ```
 
@@ -251,9 +225,9 @@ Trigger: push to `main` → install emsdk → build → Firebase deploy
 6. **`strcasecmp`**: used in `levelblit.c` — available in Emscripten libc, no change needed.
 7. **Save file location**: v1.6 saves to `~/.meritous.sav`. In Emscripten, the virtual FS
    is in-memory and lost on page reload. Mount IDBFS at `/home` and call `FS.syncfs()` to persist.
-8. **Music file licensing**: Tracker files (MOD/XM/S3M) are NOT GPL — removed from v1.6.
-   v1.2 copy is usable for local dev. For public web deployment, use free/CC-licensed OGG
-   replacements. `PlayBackgroundMusic()` auto-detects `.ogg` first — a seamless swap.
+8. **Music file licensing**: Tracker files (MOD/XM/S3M) are NOT GPL — not included in the repo.
+   The game runs silently without them. For deployment, provide free/CC-licensed OGG
+   replacements named `dat/m/track{N}.ogg`. `PlayBackgroundMusic()` auto-detects `.ogg` first.
 9. **i18n in Emscripten**: `libintl`/gettext may not be available. Either compile with
    `-DLOCALEDIR='""'` to disable locale loading, or link with `-liconv` if needed.
    The game is fully playable in English without translations.

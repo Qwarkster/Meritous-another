@@ -21,10 +21,6 @@ meritous-web/
 │       ├── src/                  ← C source files
 │       ├── dat/                  ← game assets (images, audio, data)
 │       └── Makefile
-├── meritous_v12_src/             ← original v1.2 source (reference + music files)
-│   ├── src/
-│   ├── dat/
-│   └── Makefile
 ├── docs/
 │   └── plan.md                   ← this file
 ├── web/                          ← Emscripten build outputs (gitignored)
@@ -61,29 +57,25 @@ Two upstream versions are present. **v1.6 is the build base** for all porting wo
    the `HOME` environment variable in the browser context.
 4. **Actively maintained** — bug fixes make for a more stable porting starting point.
 
-### Music file setup
+### Music files
 
-v1.6 ships without music files due to licensing. Copy from `meritous_v12_src/dat/m/` and
-rename using this index mapping (derived from the v1.2 `audio.c` tracks array):
+v1.6 ships without music files (tracker files are not GPL-compatible). The game runs
+fully without them — music will simply be silent. For deployment, source free/CC-licensed
+OGG files and place them as `dat/m/track0.ogg` through `dat/m/track12.ogg` — the
+`PlayBackgroundMusic()` function picks OGG first automatically.
 
-| Index | Original filename | Rename to |
-|---|---|---|
-| 0 | `ICEFRONT.S3M` | `track0.s3m` |
-| 1 | `cavern.xm` | `track1.xm` |
-| 2 | `cave.xm` | `track2.xm` |
-| 3 | `cave06.s3m` | `track3.s3m` |
-| 4 | `Wood.s3m` | `track4.s3m` |
-| 5 | `iller_knarkloader_final.xm` | `track5.xm` |
-| 6 | `fear2.mod` | `track6.mod` |
-| 7 | `Cv_boss.mod` | `track7.mod` |
-| 8 | `Fr_boss.mod` | `track8.mod` |
-| 9 | `CT_BOSS.MOD` | `track9.mod` |
-| 10 | `rpg_bat1.xm` | `track10.xm` |
-| 11 | `amblight.xm` | `track11.xm` |
-| 12 | `FINALBAT.s3m` | `track12.s3m` |
+The track index mapping (for reference when sourcing replacements):
 
-> **Note for public deployment:** Replace tracker files with free/CC-licensed OGG equivalents
-> (`track{N}.ogg`). The `PlayBackgroundMusic()` function picks OGG first automatically.
+| Index | Role |
+|---|---|
+| 0 | Deep dungeon (close to centre) |
+| 1–3 | Mid-range dungeon zones |
+| 4 | Forest/wood zone |
+| 5 | Title screen music |
+| 6 | Cursed artifact music |
+| 7–10 | Boss fight themes (bosses 0–3) |
+| 11 | Post-final-boss ambient |
+| 12 | Final battle |
 
 ---
 
@@ -141,22 +133,20 @@ Confirm the source compiles and runs correctly before attempting any porting.
    ```bash
    sudo apt install libsdl1.2-dev libsdl-image1.2-dev libsdl-mixer1.2-dev zlib1g-dev
    ```
-2. Build and test v1.2 as a baseline:
-   ```bash
-   cd meritous_v12_src && make && ./meritous
-   ```
-3. Set up v1.6 music files — copy from `meritous_v12_src/dat/m/` into
-   `anotherversion/meritous-master/dat/m/`, renaming per the index mapping above.
-4. Build and test v1.6:
+2. Build v1.6:
    ```bash
    cd anotherversion/meritous-master
-   make CPPFLAGS="-DDATADIR='\"dat\"'"
+   make pkgdatadir=dat
    ./meritous
    ```
-5. Verify both: title screen renders with palette animation, audio plays, gameplay works,
+3. Verify: title screen renders with palette animation, audio plays, gameplay works,
    save/load functions correctly.
 
-**Deliverable:** Both native binaries confirmed working.
+**Note on music:** v1.6 ships without music files (licensing). The game is fully
+playable without them — music will simply be silent. To test with music, source
+free/CC-licensed OGG files and place them as `dat/m/track{N}.ogg`.
+
+**Deliverable:** Native binary confirmed working.
 
 ---
 
