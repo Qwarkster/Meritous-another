@@ -24,6 +24,32 @@
 #ifndef LEVELBLIT_H
 #define LEVELBLIT_H
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+/* em_img_load: wraps IMG_Load, extracting R channel into a 1-byte-per-pixel
+   indexed buffer so C pixel writes and em_indexed_blit work correctly. */
+SDL_Surface *em_img_load(const char *path);
+/* em_indexed_blit: copies 8-bit indexed pixels from src to dst (usually screen),
+   honouring the JS-side colorKey for transparency. */
+void em_indexed_blit(SDL_Surface *src, SDL_Rect *srcrect,
+                     SDL_Surface *dst, SDL_Rect *dstrect);
+/* em_fill_rect: fills a rectangle directly in screen->pixels (8-bit indexed),
+   so VideoUpdate's putImageData includes it (SDL_FillRect on HWPALETTE
+   draws to canvas ctx which putImageData then overwrites). */
+void em_fill_rect(SDL_Surface *dst, SDL_Rect *rect, unsigned char c);
+/* em_set_colorkey: stores the colorKey for a surface (SDL_SetColorKey is no-op) */
+void em_set_colorkey(SDL_Surface *surf, int key);
+#define EM_IMG_Load em_img_load
+#define EM_BLIT(src, sr, dst, dr) em_indexed_blit(src, sr, dst, dr)
+#define EM_FILL(dst, rect, c) em_fill_rect(dst, rect, c)
+/* Replace SDL_SetColorKey with our tracker on Emscripten */
+#define SDL_SetColorKey(surf, flags, key) em_set_colorkey(surf, key)
+#else
+#define EM_IMG_Load IMG_Load
+#define EM_BLIT(src, sr, dst, dr) SDL_BlitSurface(src, sr, dst, dr)
+#define EM_FILL(dst, rect, c) SDL_FillRect(dst, rect, c)
+#endif
+
 #define PLAYERW 16
 #define PLAYERH 24
 

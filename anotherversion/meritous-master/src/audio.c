@@ -38,7 +38,10 @@ Mix_Chunk *c_sample[16] = {NULL};
 
 void InitAudio()
 {
-	Mix_OpenAudio(44100, AUDIO_S16, 2, 4096);
+	if (Mix_OpenAudio(44100, AUDIO_S16, 2, 4096) < 0) {
+		fprintf(stderr, "Audio init failed: %s (continuing without audio)\n", Mix_GetError());
+		return;
+	}
 	Mix_VolumeMusic(112);
 	Mix_AllocateChannels(16);
 }

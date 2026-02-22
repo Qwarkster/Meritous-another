@@ -797,34 +797,34 @@ struct bullet *FireLaser(int x, int y, struct enemy *firer, float dir, int fire_
 
 void InitEnemySprites()
 {
-	enemy_sprites[0] = IMG_Load(DATADIR "/i/mons1.png");
+	enemy_sprites[0] = EM_IMG_Load(DATADIR "/i/mons1.png");
 	SDL_SetColorKey(enemy_sprites[0], SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
-	enemy_sprites[1] = IMG_Load(DATADIR "/i/mons2.png");
+	enemy_sprites[1] = EM_IMG_Load(DATADIR "/i/mons2.png");
 	SDL_SetColorKey(enemy_sprites[1], SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
-	enemy_sprites[2] = IMG_Load(DATADIR "/i/mons3.png");
+	enemy_sprites[2] = EM_IMG_Load(DATADIR "/i/mons3.png");
 	SDL_SetColorKey(enemy_sprites[2], SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
-	enemy_sprites[3] = IMG_Load(DATADIR "/i/mons4.png");
+	enemy_sprites[3] = EM_IMG_Load(DATADIR "/i/mons4.png");
 	SDL_SetColorKey(enemy_sprites[3], SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
-	enemy_sprites[4] = IMG_Load(DATADIR "/i/mons5.png");
+	enemy_sprites[4] = EM_IMG_Load(DATADIR "/i/mons5.png");
 	SDL_SetColorKey(enemy_sprites[4], SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
-	enemy_sprites[5] = IMG_Load(DATADIR "/i/mons6.png");
+	enemy_sprites[5] = EM_IMG_Load(DATADIR "/i/mons6.png");
 	SDL_SetColorKey(enemy_sprites[5], SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
-	enemy_sprites[6] = IMG_Load(DATADIR "/i/mons7.png");
+	enemy_sprites[6] = EM_IMG_Load(DATADIR "/i/mons7.png");
 	SDL_SetColorKey(enemy_sprites[6], SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
-	enemy_sprites[7] = IMG_Load(DATADIR "/i/mons8.png");
+	enemy_sprites[7] = EM_IMG_Load(DATADIR "/i/mons8.png");
 	SDL_SetColorKey(enemy_sprites[7], SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
-	enemy_sprites[8] = IMG_Load(DATADIR "/i/mons9.png");
+	enemy_sprites[8] = EM_IMG_Load(DATADIR "/i/mons9.png");
 	SDL_SetColorKey(enemy_sprites[8], SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
-	enemy_sprites[9] = IMG_Load(DATADIR "/i/mons10.png");
+	enemy_sprites[9] = EM_IMG_Load(DATADIR "/i/mons10.png");
 	SDL_SetColorKey(enemy_sprites[9], SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
 
-	reticle = IMG_Load(DATADIR "/i/reticle.png");
+	reticle = EM_IMG_Load(DATADIR "/i/reticle.png");
 	SDL_SetColorKey(reticle, SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
 
-	inrange = IMG_Load(DATADIR "/i/inrange.png");
+	inrange = EM_IMG_Load(DATADIR "/i/inrange.png");
 	SDL_SetColorKey(inrange, SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
 
-	invis_enemy = IMG_Load(DATADIR "/i/hidden_monster.png");
+	invis_enemy = EM_IMG_Load(DATADIR "/i/hidden_monster.png");
 	SDL_SetColorKey(invis_enemy, SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
 }
 
@@ -1769,7 +1769,7 @@ void DrawEnemy(struct enemy *e, SDL_Surface *scr)
 	if (e->teleport_v < 8) {
 	
 		if (e->dying == 0) {
-			SDL_BlitSurface(e->image, &surf_pos, scr, &draw_pos);
+			EM_BLIT(e->image, &surf_pos, scr, &draw_pos);
 		} else {
 			if ((e->deaths+1) >= e->lives) {
 				surf_pos.w = e->image->h/e->lives * (20 - e->dying) / 20;
@@ -1786,7 +1786,7 @@ void DrawEnemy(struct enemy *e, SDL_Surface *scr)
 				draw_pos.x += (e->image->h/e->lives - surf_pos.w)/2;
 				draw_pos.y += (e->image->h/e->lives - surf_pos.w)/2;		
 			}
-			SDL_BlitSurface(e->image, &surf_pos, scr, &draw_pos);
+			EM_BLIT(e->image, &surf_pos, scr, &draw_pos);
 		}
 	
 		if (((e->t % 8) == 1) && (!game_paused)) {
@@ -1800,7 +1800,7 @@ void DrawEnemy(struct enemy *e, SDL_Surface *scr)
 		draw_pos.y -= (128-e->image->h/e->lives)/2;
 	
 		if (magic_circuit >= e->str) {
-			SDL_BlitSurface(reticle, NULL, scr, &draw_pos);
+			EM_BLIT(reticle, NULL, scr, &draw_pos);
 		}
 		
 		draw_pos.x = e->x - e->image->h/e->lives/2 - scroll_x;
@@ -1810,13 +1810,13 @@ void DrawEnemy(struct enemy *e, SDL_Surface *scr)
 		draw_pos.y -= (128-e->image->h/e->lives)/2;
 	
 		if (sqrt(sqr(e->x - player_x) + sqr(e->y - player_y)) < circuit_range) {
-			SDL_BlitSurface(inrange, NULL, scr, &draw_pos);
+			EM_BLIT(inrange, NULL, scr, &draw_pos);
 		}
 	}
 	
 	if (e->teleport_v < 24) {
 		if (teleflash == NULL) {
-			teleflash = IMG_Load(DATADIR "/i/teleflash.png");
+			teleflash = EM_IMG_Load(DATADIR "/i/teleflash.png");
 			SDL_SetColorKey(teleflash, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0);
 		}
 
@@ -1827,7 +1827,7 @@ void DrawEnemy(struct enemy *e, SDL_Surface *scr)
 		
 		draw_pos.x = e->x - 24 - scroll_x;
 		draw_pos.y = e->y - 24 - scroll_y;
-		SDL_BlitSurface(teleflash, &surf_pos, scr, &draw_pos);
+		EM_BLIT(teleflash, &surf_pos, scr, &draw_pos);
 	}
 }
 
@@ -1856,7 +1856,7 @@ void DrawBullet(struct bullet *b)
 	}
 	if (b->img == 1) {
 		if (d_star_big == NULL) {
-			d_star_big = IMG_Load(DATADIR "/i/star1.png");
+			d_star_big = EM_IMG_Load(DATADIR "/i/star1.png");
 			SDL_SetColorKey(d_star_big, SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
 		}
 		
@@ -1867,7 +1867,7 @@ void DrawBullet(struct bullet *b)
 			draw_pos.y = 0;
 			draw_pos.w = 32;
 			draw_pos.h = 32;
-			SDL_BlitSurface(d_star_big, &draw_pos, screen, &surf_pos);
+			EM_BLIT(d_star_big, &draw_pos, screen, &surf_pos);
 		} else {
 			DrawCircle(b->x - scroll_x, b->y - scroll_y, 4+(b->dying), b->dying*10);
 			DrawCircle(b->x - scroll_x, b->y - scroll_y, 2+(b->dying), 255-b->dying*10);
@@ -1943,7 +1943,7 @@ void DrawBullet(struct bullet *b)
 	}
 	if (b->img == 3) {
 		if (d_star_small == NULL) {
-			d_star_small = IMG_Load(DATADIR "/i/star2.png");
+			d_star_small = EM_IMG_Load(DATADIR "/i/star2.png");
 			SDL_SetColorKey(d_star_small, SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
 		}
 		if (b->dying == 0) {
@@ -1953,7 +1953,7 @@ void DrawBullet(struct bullet *b)
 			draw_pos.y = 0;
 			draw_pos.w = 16;
 			draw_pos.h = 16;
-			SDL_BlitSurface(d_star_small, &draw_pos, screen, &surf_pos);
+			EM_BLIT(d_star_small, &draw_pos, screen, &surf_pos);
 		} else {
 			DrawCircle(b->x - scroll_x, b->y - scroll_y, 4+(b->dying/2), b->dying*10);
 			DrawCircle(b->x - scroll_x, b->y - scroll_y, 2+(b->dying/2), 255-b->dying*10);
@@ -2007,7 +2007,7 @@ void DrawBullet(struct bullet *b)
 	}
 	if (b->img == 6) {
 		if (d_star_ls == NULL) {
-			d_star_ls = IMG_Load(DATADIR "/i/star3.png");
+			d_star_ls = EM_IMG_Load(DATADIR "/i/star3.png");
 			SDL_SetColorKey(d_star_ls, SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
 		}
 		if (b->dying == 0) {
@@ -2017,7 +2017,7 @@ void DrawBullet(struct bullet *b)
 			draw_pos.y = 0;
 			draw_pos.w = 32;
 			draw_pos.h = 32;
-			SDL_BlitSurface(d_star_ls, &draw_pos, screen, &surf_pos);
+			EM_BLIT(d_star_ls, &draw_pos, screen, &surf_pos);
 		} else {
 			DrawCircle(b->x - scroll_x, b->y - scroll_y, 4+(b->dying), 255-b->dying*10);
 			DrawCircle(b->x - scroll_x, b->y - scroll_y, 2+(b->dying), b->dying*10);
@@ -2061,7 +2061,7 @@ void DrawGem(struct diamond *g)
 	if (g->delete_me) return;
 
 	if (d_sprite == NULL) {
-		d_sprite = IMG_Load(DATADIR "/i/gem.png");
+		d_sprite = EM_IMG_Load(DATADIR "/i/gem.png");
 		SDL_SetColorKey(d_sprite, SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
 		hp_icon[0] = 3;
 		hp_icon[1] = 0;
@@ -2080,7 +2080,7 @@ void DrawGem(struct diamond *g)
 		draw_pos.w = 8;
 		draw_pos.h = 8;
 	
-		SDL_BlitSurface(d_sprite, &draw_pos, screen, &surf_pos);
+		EM_BLIT(d_sprite, &draw_pos, screen, &surf_pos);
 	} else {
 		DrawCircle(g->x - scroll_x, g->y - scroll_y, 6, (rand()%64) ^ fxp);
 		draw_text(g->x - 4 - scroll_x, g->y - 4 - scroll_y, hp_icon, (200+rand()%56) ^ fxp);
@@ -2094,7 +2094,7 @@ void DrawInvisible(int x, int y)
 	SDL_Rect dest;
 	dest.x = x - scroll_x - 24;
 	dest.y = y - scroll_y - 24;
-	SDL_BlitSurface(invis_enemy, NULL, screen, &dest);
+	EM_BLIT(invis_enemy, NULL, screen, &dest);
 }
 
 void DrawEntities()

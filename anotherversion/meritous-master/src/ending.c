@@ -109,7 +109,7 @@ void ShowEnding()
 		EndCycle(0);
 		if (EndingEvents()) return;
 	}
-	SDL_FillRect(screen, NULL, 255);
+	EM_FILL(screen, NULL, 255);
 	for (i = 0; i < 350; i++) {
 		DrawPText(i);
 		EndCycle(0);
@@ -303,7 +303,7 @@ char *credits[] = {
 	N_("\"Forest Boss\"         Alexis Janson"),
 	N_("\"Catacombs Boss\"      Alexis Janson"),
 	N_("\"Fear 2\"              Mick Rippon"),
-	N_("\"The Final Battle\"    Goose/CéDA & iNVASiON"),
+	N_("\"The Final Battle\"    Goose/Cï¿½DA & iNVASiON"),
 	N_("\"Ice Frontier\"        Skaven/FC"),
 	N_("\"KnarkLoader 1.0\"     Rapacious"),
 	N_("\"RPG-Battle\"          Cyn"),
@@ -326,7 +326,7 @@ void DrawCredits()
 	draw_to.x = 384;
 	draw_to.y = 352;
 	
-	SDL_FillRect(screen, NULL, 0);
+	EM_FILL(screen, NULL, 0);
 	
 	if (fin == NULL) {
 		fin = IMG_Load(DATADIR "/i/fin.png");

@@ -186,7 +186,7 @@ void DisplayAutomap()
 	from.w = 200;
 	from.h = 229;
 
-	SDL_FillRect(screen, &position, 255);
+	EM_FILL(screen, &position, 255);
 	SDL_BlitSurface(automap, &from, screen, &position);
 	
 	rx = c_scroll_x / 32 - 27 - minimap_scroll_x + 437;

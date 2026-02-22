@@ -540,7 +540,7 @@ void DrawPowerObject()
 	if (killed_enemies >= required_enemies) {
 		DrawCircle(p_x + 16 - scroll_x, p_y + 16 - scroll_y, 34+rand()%5 + collect * 4 + 1, rand()%128+128);
 	}
-	SDL_BlitSurface(artifact_spr, &from, screen, &to);
+	EM_BLIT(artifact_spr, &from, screen, &to);
 	
 	//printf("Required: %d   Killed %d   Value: %d\n", required_enemies, killed_enemies, (int)(sqrt((required_enemies - killed_enemies)/4)+5));
 	for (i = 0; i < (int)(sqrt((required_enemies - killed_enemies))+5); i++) {
@@ -565,9 +565,9 @@ void DrawBossHP(int bar_length)
 	to.y = 29;
 	
 	if (boss_hp_icon == NULL) {
-		boss_hp_icon = IMG_Load(DATADIR "/i/boss_icon.png");
+		boss_hp_icon = EM_IMG_Load(DATADIR "/i/boss_icon.png");
 	}
-	SDL_BlitSurface(boss_hp_icon, NULL, screen, &to);
+	EM_BLIT(boss_hp_icon, NULL, screen, &to);
 	DrawRect(16, 28, 624, 17, 0);
 	DrawRect(17, 29, 622, 15, 32);
 	DrawRect(18, 30, 620, 13, 64);
@@ -681,7 +681,7 @@ void DrawBoss()
 			
 			SDL_Rect drawpos;
 			if (boss_spr == NULL) {
-				boss_spr = IMG_Load(DATADIR "/i/boss1.png");
+				boss_spr = EM_IMG_Load(DATADIR "/i/boss1.png");
 				SDL_SetColorKey(boss_spr, SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
 			}
 			
@@ -716,7 +716,7 @@ void DrawBoss()
 			drawpos.x = boss_x - 16 - scroll_x;
 			drawpos.y = boss_y - 16 - scroll_y;
 			
-			SDL_BlitSurface(boss_spr, NULL, screen, &drawpos);
+			EM_BLIT(boss_spr, NULL, screen, &drawpos);
 			
 			break;
 		}
@@ -735,7 +735,7 @@ void DrawBoss()
 
 			SDL_Rect drawpos;
 			if (boss_spr == NULL) {
-				boss_spr = IMG_Load(DATADIR "/i/boss2.png");
+				boss_spr = EM_IMG_Load(DATADIR "/i/boss2.png");
 				SDL_SetColorKey(boss_spr, SDL_SRCCOLORKEY | SDL_RLEACCEL, 255);
 			}
 			
@@ -791,7 +791,7 @@ void DrawBoss()
 				drawpos.x = hx[i] - 16 - scroll_x;
 				drawpos.y = hy[i] - 16 - scroll_y;
 				
-				SDL_BlitSurface(boss_spr, NULL, screen, &drawpos);
+				EM_BLIT(boss_spr, NULL, screen, &drawpos);
 			}
 			
 			break;
@@ -804,7 +804,7 @@ void DrawBoss()
 			SDL_Rect drawfrom, drawpos;
 						
 			if (boss_spr == NULL) {
-				boss_spr = IMG_Load(DATADIR "/i/boss3.png");
+				boss_spr = EM_IMG_Load(DATADIR "/i/boss3.png");
 				SDL_SetColorKey(boss_spr, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0);
 			}
 			
@@ -846,7 +846,7 @@ void DrawBoss()
 					drawpos.x = mx - 16 - scroll_x;
 					drawpos.y = my - 16 - scroll_y;
 				
-					SDL_BlitSurface(boss_spr, &drawfrom, screen, &drawpos);
+					EM_BLIT(boss_spr, &drawfrom, screen, &drawpos);
 				}
 			}
 			// Draw heads
@@ -857,7 +857,7 @@ void DrawBoss()
 			for (i = 0; i < boss_m_heads; i++) {
 				drawpos.x = boss_m_hx[i] - 16 - scroll_x;
 				drawpos.y = boss_m_hy[i] - 16 - scroll_y;
-				SDL_BlitSurface(boss_spr, &drawfrom, screen, &drawpos);
+				EM_BLIT(boss_spr, &drawfrom, screen, &drawpos);
 			}
 			
 			// Draw core
@@ -865,7 +865,7 @@ void DrawBoss()
 				drawpos.x = boss_x - 16 - scroll_x;
 				drawpos.y = boss_y - 16 - scroll_y;
 				
-				SDL_BlitSurface(boss_spr, &drawfrom, screen, &drawpos);
+				EM_BLIT(boss_spr, &drawfrom, screen, &drawpos);
 			}
 			break;
 		}
@@ -874,7 +874,7 @@ void DrawBoss()
 			static SDL_Surface *boss_spr = NULL;
 			
 			if (boss_spr == NULL) {
-				boss_spr = IMG_Load(DATADIR "/i/boss4.png");
+				boss_spr = EM_IMG_Load(DATADIR "/i/boss4.png");
 				SDL_SetColorKey(boss_spr, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0);
 			}
 			
@@ -886,7 +886,7 @@ void DrawBoss()
 			drawto.x = boss_x - 16 - scroll_x;
 			drawto.y = boss_y - 16 - scroll_y;
 			
-			SDL_BlitSurface(boss_spr, NULL, screen, &drawto);
+			EM_BLIT(boss_spr, NULL, screen, &drawto);
 			break;
 		}
 	}
@@ -1631,12 +1631,12 @@ void BC_BossDying()
 					} else {
 						if (endpics[0] == NULL) {
 							if (training) {
-								endpics[0] = IMG_Load(DATADIR "/i/wuss_ending.png");
+								endpics[0] = EM_IMG_Load(DATADIR "/i/wuss_ending.png");
 							} 
 						}
 						
 						if (training) {
-							SDL_BlitSurface(endpics[0], NULL, screen, NULL);
+							EM_BLIT(endpics[0], NULL, screen, NULL);
 						} else {
 							show_ending = 1;
 						}
@@ -1761,7 +1761,7 @@ void DrawArtifactOverhead(int p_obj)
 	
 	to.x = p_x - scroll_x;
 	to.y = p_y - scroll_y;
-	SDL_BlitSurface(artifact_spr, &from, screen, &to);
+	EM_BLIT(artifact_spr, &from, screen, &to);
 
 	
 	tick++;

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meritous</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0a0f;
+      color: #ccc;
+      font-family: 'Press Start 2P', monospace, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px 10px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    header h1 {
+      font-size: clamp(1.2rem, 4vw, 2rem);
+      color: #7af;
+      text-shadow: 0 0 12px #48f, 0 0 24px #48f8;
+      letter-spacing: 0.15em;
+      margin-bottom: 6px;
+    }
+
+    header p {
+      font-size: 0.45rem;
+      color: #556;
+      letter-spacing: 0.1em;
+    }
+
+    /* Arcade cabinet bezel */
+    .cabinet {
+      background: #111;
+      border: 3px solid #334;
+      border-radius: 6px;
+      padding: 14px;
+      box-shadow:
+        0 0 0 1px #223,
+        0 0 30px #0006,
+        inset 0 0 20px #0008;
+      position: relative;
+    }
+
+    /* Scanline overlay */
+    .cabinet::after {
+      content: '';
+      position: absolute;
+      inset: 14px;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 1px,
+        rgba(0,0,0,0.18) 1px,
+        rgba(0,0,0,0.18) 2px
+      );
+      pointer-events: none;
+      z-index: 2;
+      border-radius: 2px;
+    }
+
+    /* Screen glow behind canvas */
+    .screen-wrap {
+      position: relative;
+    }
+    .screen-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      background: radial-gradient(ellipse at center, #1a2a4a88 0%, transparent 70%);
+      z-index: 0;
+    }
+
+    canvas {
+      display: block;
+      image-rendering: pixelated;
+      cursor: crosshair;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Loading overlay */
+    #loading {
+      position: absolute;
+      inset: 0;
+      background: #080810;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 10;
+      border-radius: 2px;
+    }
+    #loading.hidden { display: none; }
+
+    #loading-text {
+      font-size: 0.55rem;
+      color: #7af;
+      text-shadow: 0 0 8px #48f;
+      letter-spacing: 0.1em;
+    }
+
+    .progress-bar {
+      width: 300px;
+      height: 10px;
+      background: #1a1a2a;
+      border: 1px solid #334;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(to right, #48f, #8af);
+      box-shadow: 0 0 8px #48f;
+      transition: width 0.2s;
+      width: 0%;
+    }
+
+    .controls-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .ctrl-btn {
+      font-family: inherit;
+      font-size: 0.4rem;
+      background: #1a1a2a;
+      color: #9ab;
+      border: 1px solid #334;
+      border-radius: 3px;
+      padding: 6px 10px;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+    }
+    .ctrl-btn:hover {
+      background: #22263a;
+      color: #bdf;
+      box-shadow: 0 0 8px #48f6;
+    }
+
+    .key-hints {
+      font-size: 0.38rem;
+      color: #445;
+      letter-spacing: 0.08em;
+      margin-top: 10px;
+      text-align: center;
+      line-height: 2;
+    }
+    .key-hints span { color: #667; }
+
+    footer {
+      margin-top: 18px;
+      font-size: 0.35rem;
+      color: #334;
+      letter-spacing: 0.08em;
+      text-align: center;
+      line-height: 2.2;
+    }
+    footer a { color: #446; text-decoration: none; }
+    footer a:hover { color: #7af; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>✦ MERITOUS ✦</h1>
+  <p>by Lancer-X / ASCEAI &nbsp;·&nbsp; GPL &nbsp;·&nbsp; WebAssembly port</p>
+</header>
+
+<div class="cabinet">
+  <div class="screen-wrap">
+    <canvas id="canvas" width="640" height="480"
+            oncontextmenu="event.preventDefault()" tabindex="0"></canvas>
+    <div id="loading">
+      <div id="loading-text">LOADING…</div>
+      <div class="progress-bar"><div class="progress-bar-fill" id="progress-fill"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="controls-bar">
+  <button class="ctrl-btn" onclick="Module.requestFullscreen(false,false)">⛶ FULLSCREEN</button>
+  <button class="ctrl-btn" id="mute-btn" onclick="toggleMute()">♪ MUTE</button>
+</div>
+
+<div class="key-hints">
+  <span>MOVE</span> WASD / ARROW KEYS &nbsp;&nbsp;
+  <span>PSI</span> SPACE &nbsp;&nbsp;
+  <span>MAP</span> TAB &nbsp;&nbsp;
+  <span>PAUSE</span> P &nbsp;&nbsp;
+  <span>HELP</span> H
+</div>
+
+<footer>
+  <div>Click the game area to capture keyboard input.</div>
+  <div>Original game © 2007-2008 Lancer-X/ASCEAI — <a href="https://github.com/lancer-x/meritous" target="_blank">source</a></div>
+</footer>
+
+<script>
+  var muted = false;
+  function toggleMute() {
+    muted = !muted;
+    document.getElementById('mute-btn').textContent = muted ? '♪ UNMUTE' : '♪ MUTE';
+    if (typeof Module !== 'undefined' && Module.SDL && Module.SDL.audioContext) {
+      Module.SDL.audioContext[muted ? 'suspend' : 'resume']();
+    }
+  }
+
+  var statusEl   = document.getElementById('loading-text');
+  var progressEl = document.getElementById('progress-fill');
+  var loadingEl  = document.getElementById('loading');
+
+  function setStatus(text) {
+    if (!text) {
+      loadingEl.classList.add('hidden');
+      document.getElementById('canvas').focus();
+      return;
+    }
+    var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+    if (m) {
+      statusEl.textContent = m[1].trim();
+      progressEl.style.width = (100 * parseInt(m[2]) / parseInt(m[4])) + '%';
+    } else {
+      statusEl.textContent = text.toUpperCase();
+    }
+  }
+
+  var Module = {
+    canvas: document.getElementById('canvas'),
+    setStatus: setStatus,
+    totalDependencies: 0,
+    monitorRunDependencies: function(n) {
+      this.totalDependencies = Math.max(this.totalDependencies, n);
+      setStatus(n ? 'LOADING (' + (this.totalDependencies - n) + '/' + this.totalDependencies + ')' : '');
+    },
+    // Suppress stdout/stderr from appearing anywhere visible
+    print:    function() {},
+    printErr: function(t) { /* uncomment to debug: console.warn(t); */ }
+  };
+
+  window.onerror = function() {
+    setStatus('ERROR — see browser console');
+  };
+</script>
+<script async src="meritous.js"></script>
+{{{ SCRIPT }}}
+</body>
+</html>

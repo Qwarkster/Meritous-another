@@ -38,12 +38,18 @@ EM_FLAGS = \
 	-s SDL2_MIXER_FORMATS='["mod","wav","ogg"]' \
 	-s USE_ZLIB=1 \
 	-s ASYNCIFY \
-	-s ASYNCIFY_IGNORE_INDIRECT=1 \
+	-s ASYNCIFY_IMPORTS='["SDL_Delay"]' \
+	-s ASYNCIFY_STACK_SIZE=524288 \
+	-s ASSERTIONS=1 \
 	-s ALLOW_MEMORY_GROWTH=1 \
 	-s INITIAL_MEMORY=67108864 \
+	-s STACK_SIZE=524288 \
 	-s FORCE_FILESYSTEM=1 \
 	-s EXIT_RUNTIME=0 \
+	--pre-js web/pre.js \
+	--shell-file web/shell.html \
 	--preload-file $(DATADIR_SRC)@$(DATADIR_FS) \
+	--use-preload-plugins \
 	-DDATADIR='"$(DATADIR_FS)"' \
 	-DLOCALEDIR='""'
 

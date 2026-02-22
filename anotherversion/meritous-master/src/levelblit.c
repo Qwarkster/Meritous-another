@@ -28,6 +28,9 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <assert.h>
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 
 #include "mapgen.h"
 #include "demon.h"
@@ -224,6 +227,101 @@ void ScrollTo(int x, int y);
 
 SDL_Surface *screen;
 
+#ifdef __EMSCRIPTEN__
+
+/* Load a PNG and convert its canvas RGBA pixels into a 1-byte-per-pixel
+   indexed buffer (R channel == grey == palette index for 8-bit grey PNGs).
+   Patches surf->pixels and surfData.buffer so C code and em_indexed_blit agree. */
+SDL_Surface *em_img_load(const char *path)
+{
+	SDL_Surface *surf = IMG_Load(path);
+	if (!surf) return surf;
+	int n = surf->w * surf->h;
+	Uint8 *buf = (Uint8 *)malloc(n);
+	/* surfData.buffer has the RGBA bytes already written by IMG_Load's LockSurface hack;
+	   extract the R channel (= grey = palette index) without a second getImageData call. */
+	EM_ASM({
+		var sd = SDL.surfaces[$0];
+		var src = sd.buffer;
+		var n = $2;
+		for (var i = 0; i < n; i++) {
+			HEAPU8[$1 + i] = HEAPU8[src + i * 4];
+		}
+		var r0 = HEAPU8[src]; var r1 = HEAPU8[src+4]; var r2 = HEAPU8[src+8];
+		var e0 = HEAPU8[$1];  var e1 = HEAPU8[$1+1]; var e2 = HEAPU8[$1+2];
+		console.log('em_img_load ' + UTF8ToString($3) +
+		            ' srcRGB[0,1,2]=' + r0 + ',' + r1 + ',' + r2 +
+		            ' extracted=' + e0 + ',' + e1 + ',' + e2);
+	}, surf, buf, n, path);
+	/* Replace the surface's pixel buffer with our 1-bpp indexed copy. */
+	surf->pixels = buf;
+	surf->pitch  = surf->w;
+	EM_ASM({
+		SDL.surfaces[$0].buffer = $1;
+		SDL.surfaces[$0].width  = SDL.surfaces[$0].width; /* no-op, keeps reference */
+	}, surf, buf);
+	return surf;
+}
+
+/* Copy 8-bit indexed pixels from src (1-bpp, pitch=w) to dst (1-bpp HWPALETTE screen).
+   Respects the colorKey stored in SDL.surfaces[src].colorKey. */
+void em_indexed_blit(SDL_Surface *src, SDL_Rect *srcrect,
+                     SDL_Surface *dst, SDL_Rect *dstrect)
+{
+	int sx = srcrect ? srcrect->x : 0;
+	int sy = srcrect ? srcrect->y : 0;
+	int sw = srcrect ? srcrect->w : src->w;
+	int sh = srcrect ? srcrect->h : src->h;
+	int dx = dstrect ? dstrect->x : 0;
+	int dy = dstrect ? dstrect->y : 0;
+	Uint8 *sp = (Uint8 *)src->pixels;
+	Uint8 *dp = (Uint8 *)dst->pixels;
+	int ck = EM_ASM_INT({
+		var v = MERITOUS_COLORKEYS[$0];
+		return (v !== undefined) ? v : -1;
+	}, src);
+	int row, col;
+	for (row = 0; row < sh; row++) {
+		int drow = dy + row;
+		if (drow < 0 || drow >= dst->h) continue;
+		for (col = 0; col < sw; col++) {
+			int dcol = dx + col;
+			if (dcol < 0 || dcol >= dst->w) continue;
+			Uint8 idx = sp[(sy + row) * (int)src->pitch + (sx + col)];
+			if (ck >= 0 && idx == (Uint8)ck) continue;
+			dp[drow * (int)dst->pitch + dcol] = idx;
+		}
+	}
+}
+
+void em_fill_rect(SDL_Surface *dst, SDL_Rect *rect, unsigned char c)
+{
+	int x, y, x2, y2;
+	if (!dst || !dst->pixels) return;
+	if (rect) {
+		x = rect->x; y = rect->y;
+		x2 = x + rect->w; y2 = y + rect->h;
+	} else {
+		x = 0; y = 0; x2 = dst->w; y2 = dst->h;
+	}
+	if (x  < 0) x  = 0;
+	if (y  < 0) y  = 0;
+	if (x2 > dst->w) x2 = dst->w;
+	if (y2 > dst->h) y2 = dst->h;
+	for (; y < y2; y++) {
+		unsigned char *row = (unsigned char *)dst->pixels + y * dst->pitch;
+		memset(row + x, c, x2 - x);
+	}
+}
+
+/* Store colorKey in JS map keyed by surface pointer. */
+void em_set_colorkey(SDL_Surface *surf, int key)
+{
+	EM_ASM({ MERITOUS_COLORKEYS[$0] = $1; }, surf, key);
+}
+
+#endif /* __EMSCRIPTEN__ */
+
 void SetGreyscalePalette();
 void SetTonedPalette(float pct);
 void SetTitlePalette(int curve_start, int curve_end);
@@ -243,9 +341,45 @@ void LockDoors(int r);
 void VideoUpdate()
 {
 	static int bmp = 0;
+	static int vcall = 0;
 	char bmp_name[256];
-	
+
+#ifdef __EMSCRIPTEN__
+	EM_ASM({
+		var sd = SDL.surfaces[$0];
+		var call = $1;
+		if (!sd) { if(call<3) console.error('VideoUpdate: no surfData for screen ptr ' + $0); return; }
+		if (!sd.colors) { if(call<3) console.warn('VideoUpdate: sd.colors NOT SET (call ' + call + ')'); return; }
+		if (!sd.image)  { if(call<3) console.warn('VideoUpdate: sd.image not created (call ' + call + ')'); return; }
+
+		/* Sample raw buffer values before palette mapping */
+		if (call < 3) {
+			var buf = sd.buffer;
+			var samples = [];
+			for (var i = 0; i < 10; i++) samples.push(HEAPU8[buf + i]);
+			console.log('VideoUpdate call ' + call +
+			            ': buf[0..9]=' + samples.join(',') +
+			            ' colors32[0]=' + sd.colors32[0] +
+			            ' colors32[128]=' + sd.colors32[128] +
+			            ' colors32[255]=' + sd.colors32[255]);
+		}
+
+		SDL.copyIndexedColorData(sd);
+
+		/* Sample image.data after palette mapping */
+		if (call < 3) {
+			var d = sd.image.data;
+			console.log('After copy: image.data[0..7]=' +
+			    d[0]+','+d[1]+','+d[2]+','+d[3]+'  '+
+			    d[4]+','+d[5]+','+d[6]+','+d[7]);
+		}
+
+		sd.ctx.putImageData(sd.image, 0, 0);
+	}, screen, vcall);
+	vcall++;
+#else
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
+#endif
 	if (WriteBitmaps) {
 		if ((bmp >= WB_StartRange)&&(bmp < WB_EndRange)) {
 			sprintf(bmp_name, "v/bmp%d.bmp", bmp);
@@ -263,9 +397,16 @@ void EndCycle(int n)
 	
 	if (n == 0) n = frame_len;
 
+#ifdef __EMSCRIPTEN__
+	/* Skip tick_delta calculation — SDL_GetTicks in Emscripten can return
+	   a large epoch-based value that overflows int, corrupting the delay.
+	   Just sleep the target frame time directly; browser vsync handles pacing. */
+	emscripten_sleep(n);
+#else
 	if (tick_delta < n) {
-		SDL_Delay(n-tick_delta);
+		SDL_Delay(n - tick_delta);
 	}
+#endif
 	
 	if (!game_paused) expired_ms += n;
 		
@@ -496,18 +637,38 @@ int main(int argc, char **argv)
 		srand(stime);
 	}
 	
-	asceai = IMG_Load(DATADIR "/i/asceai.png");
+	asceai = EM_IMG_Load(DATADIR "/i/asceai.png");
 	wm_icon = IMG_Load(DATADIR "/i/icon.png");
 	if (wm_icon == NULL) {
 		fprintf(stderr, _("Cannot open %s: %s\n"),
 			DATADIR "/i/icon.png", IMG_GetError());
 		fprintf(stderr, _("Make sure the game data is installed.\n"));
+#ifndef __EMSCRIPTEN__
 		exit(1);
+#endif
 	}
 	
-	screen = SDL_SetVideoMode(SCREEN_W, SCREEN_H, 8, SDL_SWSURFACE | (SDL_FULLSCREEN * fullscreen));
+	screen = SDL_SetVideoMode(SCREEN_W, SCREEN_H, 8,
+	    SDL_SWSURFACE | SDL_HWPALETTE | (SDL_FULLSCREEN * fullscreen));
+	fprintf(stderr, "DEBUG: SDL_SetVideoMode %s (pitch=%d pixels=%p)\n",
+	        screen ? "OK" : "NULL", screen ? screen->pitch : -1,
+	        screen ? screen->pixels : NULL);
+#ifdef __EMSCRIPTEN__
+	/* Create surfData.image so copyIndexedColorData + putImageData can render.
+	   Do NOT call SDL_LockSurface on an HWPALETTE surface (it aborts). */
+	EM_ASM({
+		var sd = SDL.surfaces[$0];
+		if (sd && sd.ctx && !sd.image)
+			sd.image = sd.ctx.createImageData(sd.width, sd.height);
+		console.log('Screen init: buffer=' + sd.buffer +
+		            ' pitch=' + $1 + ' image=' + !!sd.image);
+	}, screen, screen->pitch);
+#endif
 	
 	SDL_WM_SetCaption("~ m e r i t o u s ~", "MT");
+#ifdef __EMSCRIPTEN__
+	EM_ASM(console.log('BUILD: js-keys-v1 loaded'););
+#endif
 	wm_mask_file = fopen(DATADIR "/d/icon_bitmask.dat", "rb");
 	if (wm_mask_file) {
 		if (fread(wm_mask, 1, 128, wm_mask_file) == 128) {
@@ -534,7 +695,17 @@ int main(int argc, char **argv)
 	SetGreyscalePalette();
 	
 	// asceai logo
-	SDL_BlitSurface(asceai, NULL, screen, NULL);
+	EM_BLIT(asceai, NULL, screen, NULL);
+#ifdef __EMSCRIPTEN__
+	EM_ASM({
+		var sd = SDL.surfaces[$0];
+		var buf = sd.buffer;
+		var s = [];
+		for(var i=0;i<10;i++) s.push(HEAPU8[buf+i]);
+		console.log('After asceai blit: screen buf[0..9]=' + s.join(',') +
+		            ' screen pitch=' + $1 + ' screen w=' + sd.width);
+	}, screen, screen->pitch);
+#endif
 	
 	int skip_logo = 0;
 	for (i = 0; i < 75 && !skip_logo; i++) {
@@ -543,14 +714,22 @@ int main(int argc, char **argv)
 		if (SkipLogoEvents()) skip_logo = 1;
 		EndCycle(20);
 	}
+#ifdef __EMSCRIPTEN__
+	emscripten_sleep(500);
+#else
 	SDL_Delay(500);
+#endif
 	for (i = 0; i < 50 && !skip_logo; i++) {
 		SetTitlePalette(i * 5, 255 - (i * 5));
 		VideoUpdate();
 		if (SkipLogoEvents()) skip_logo = 1;
 		EndCycle(20);
 	}
+#ifdef __EMSCRIPTEN__
+	emscripten_sleep(500);
+#else
 	SDL_Delay(500);
+#endif
 	for (i = 0; i < 50 && !skip_logo; i++) {
 		SetTitlePalette(255, (i * 5)+5);
 		VideoUpdate();
@@ -571,8 +750,8 @@ int main(int argc, char **argv)
 		
 		maxoptions = 2 + can_continue;
 	
-		title = IMG_Load(DATADIR "/i/title.png");
-		title_pr = IMG_Load(DATADIR "/i/title.png");
+		title = EM_IMG_Load(DATADIR "/i/title.png");
+		title_pr = EM_IMG_Load(DATADIR "/i/title.png");
 		
 		while (on_title) {
 			Uint8 *src_p, *col_p;
@@ -584,7 +763,7 @@ int main(int argc, char **argv)
 					*(col_p++) = Uint8_Bound(*(src_p++)+precalc_sine[(pulse[i]+tick)%400]);
 				}
 			}
-			SDL_BlitSurface(title_pr, NULL, screen, NULL);
+			EM_BLIT(title_pr, NULL, screen, NULL);
 			
 			draw_text(17, 156, MERITOUS_VERSION, 225 + sin((float)ticker_tick / 15)*30);
 			if (can_continue) draw_text((SCREEN_W - 14*8)/2, 310, _("Continue"), 255);
@@ -675,7 +854,7 @@ void DrawMeter(int x, int y, int n)
 	static SDL_Surface *meter = NULL;
 	SDL_Rect drawfrom, drawto;
 	if (meter == NULL) {
-		meter = IMG_Load(DATADIR "/i/meter.png");
+		meter = EM_IMG_Load(DATADIR "/i/meter.png");
 		SDL_SetColorKey(meter, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0);
 	}
 	
@@ -687,12 +866,12 @@ void DrawMeter(int x, int y, int n)
 	drawto.x = x;
 	drawto.y = y;
 	
-	SDL_BlitSurface(meter, &drawfrom, screen, &drawto);
+	EM_BLIT(meter, &drawfrom, screen, &drawto);
 	
 	drawfrom.w = n*6;
 	drawfrom.y = 0;
 	
-	SDL_BlitSurface(meter, &drawfrom, screen, &drawto);
+	EM_BLIT(meter, &drawfrom, screen, &drawto);
 }
 
 void ProgressBarScreen(int part, float progress, char *message, float t_parts)
@@ -984,7 +1163,7 @@ int DungeonPlay(char *fname)
 					
 					SDL_Rect draw_to;
 					if (agate_knife == NULL) {
-						agate_knife = IMG_Load(DATADIR "/i/agate.png");
+						agate_knife = EM_IMG_Load(DATADIR "/i/agate.png");
 						SDL_SetColorKey(agate_knife, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0);
 					}
 					xpos = (int)((sin(agate_t * 1.33)*0.5+0.5) * (float)room_w) + room_x;
@@ -1004,7 +1183,7 @@ int DungeonPlay(char *fname)
 					draw_to.x = xpos - 16 - scroll_x;
 					draw_to.y = ypos - 16 - scroll_y;
 					
-					SDL_BlitSurface(agate_knife, NULL, screen, &draw_to);
+					EM_BLIT(agate_knife, NULL, screen, &draw_to);
 										
 					agate_t += 0.05;
 				}
@@ -1314,10 +1493,14 @@ int DungeonPlay(char *fname)
 	}
 	
 	if ((player_lives == 0) && (!training)) {
-		SDL_FillRect(screen, NULL, 0);
+		EM_FILL(screen, NULL, 0);
 		draw_text(252, 236, _("G A M E   O V E R"), 255);
 		VideoUpdate();
-		SDL_Delay(2000);
+	#ifdef __EMSCRIPTEN__
+	emscripten_sleep(2000);
+#else
+	SDL_Delay(2000);
+#endif
 	}
 	
 	return 0;
@@ -1377,8 +1560,39 @@ void HandleEvents()
 	}
 	
 	enter_pressed = 0;
+#ifdef __EMSCRIPTEN__
+	/* SDL.receiveEvent does not fire for keyboard events under ASYNCIFY.
+	   Read key state directly from the JS MERITOUS_KEYS object instead. */
+	key_held[K_UP] = EM_ASM_INT({ return MERITOUS_KEYS.up; });
+	key_held[K_DN] = EM_ASM_INT({ return MERITOUS_KEYS.dn; });
+	key_held[K_LT] = EM_ASM_INT({ return MERITOUS_KEYS.lt; });
+	key_held[K_RT] = EM_ASM_INT({ return MERITOUS_KEYS.rt; });
+	key_held[K_SP] = EM_ASM_INT({ return MERITOUS_KEYS.sp; });
+	enter_pressed  = EM_ASM_INT({ var v = MERITOUS_KEYS.enter; MERITOUS_KEYS.enter = 0; return v; });
+	{
+		int esc = EM_ASM_INT({ var v = MERITOUS_KEYS.esc; MERITOUS_KEYS.esc = 0; return v; });
+		if (esc) {
+			if (map_enabled) { map_enabled = 0; game_paused = 0; tele_select = 0; }
+			else { voluntary_exit ^= 1; game_paused = voluntary_exit; }
+		}
+		int tab = EM_ASM_INT({ var v = MERITOUS_KEYS.tab; MERITOUS_KEYS.tab = 0; return v; });
+		if (tab) {
+			if (tele_select) { map_enabled = 0; game_paused = 0; tele_select = 0; }
+			else { pressed_tab = 1; map_enabled ^= 1; game_paused = map_enabled;
+			       c_scroll_x = player_x; c_scroll_y = player_y; }
+			CancelVoluntaryExit();
+		}
+		int hp = EM_ASM_INT({ var v = MERITOUS_KEYS.p; MERITOUS_KEYS.p = 0; return v; });
+		if (hp) { game_paused ^= 1; CancelVoluntaryExit(); }
+		int hh = EM_ASM_INT({ var v = MERITOUS_KEYS.h; MERITOUS_KEYS.h = 0; return v; });
+		if (hh) { CancelVoluntaryExit(); ShowHelp(); }
+	}
+	/* Also drain any remaining SDL events (mouse, quit) */
+	while (SDL_PollEvent(&event)) {
+		if (event.type == SDL_QUIT) voluntary_exit = 1;
+	}
+#else
 		while (SDL_PollEvent(&event)) {
-			if (event.type == SDL_KEYDOWN) {
 				switch (event.key.keysym.sym) {
 					case SDLK_w:
 					case SDLK_UP:
@@ -1520,7 +1734,8 @@ void HandleEvents()
 				voluntary_exit = 1;
 			}
 		}
-		
+#endif /* __EMSCRIPTEN__ */
+
 	if (RECORDING) {
 		db = 0;
 		
@@ -1556,8 +1771,8 @@ void DrawLevel(int off_x, int off_y, int hide_not_visited, int fog_of_war)
 	DrawRect(0, 0, 640, 480, 255);
 	
 	if (tiles == NULL) {
-		tiles = IMG_Load(DATADIR "/i/tileset.png");
-		fog = IMG_Load(DATADIR "/i/tileset.png");
+		tiles = EM_IMG_Load(DATADIR "/i/tileset.png");
+		fog = EM_IMG_Load(DATADIR "/i/tileset.png");
 				
 		pp = fog->pixels;
 		
@@ -1584,9 +1799,9 @@ void DrawLevel(int off_x, int off_y, int hide_not_visited, int fog_of_war)
 			screenrec.y = y*32 - ( (off_y) %32);
 			
 			if ((player_room != GetRoom(resolve_x, resolve_y))&&(fog_of_war)) {
-				SDL_BlitSurface(fog, &tilerec, screen, &screenrec);
+				EM_BLIT(fog, &tilerec, screen, &screenrec);
 			} else {
-				SDL_BlitSurface(tiles, &tilerec, screen, &screenrec);
+				EM_BLIT(tiles, &tilerec, screen, &screenrec);
 			}
 		}
 	}
@@ -1598,7 +1813,7 @@ void DrawPlayer(int x, int y, int pl_dir, int pl_frm)
 	SDL_Rect playerrec, screenrec;
 	
 	if (playersprite == NULL) {
-		playersprite = IMG_Load(DATADIR "/i/player.png");
+		playersprite = EM_IMG_Load(DATADIR "/i/player.png");
 		SDL_SetColorKey(playersprite, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0);
 	}
 	
@@ -1610,7 +1825,7 @@ void DrawPlayer(int x, int y, int pl_dir, int pl_frm)
 	screenrec.x = x;
 	screenrec.y = y;
 	
-	SDL_BlitSurface(playersprite, &playerrec, screen, &screenrec);
+	EM_BLIT(playersprite, &playerrec, screen, &screenrec);
 }
 
 void SetGreyscalePalette()
@@ -1985,13 +2200,8 @@ void ActivateRoom(int room)
 void DrawRect(int x, int y, int w, int h, unsigned char c)
 {
 	SDL_Rect r;
-
-	r.x = x;
-	r.y = y;
-	r.w = w;
-	r.h = h;
-
-	SDL_FillRect(screen, &r, c);
+	r.x = x; r.y = y; r.w = w; r.h = h;
+	EM_FILL(screen, &r, c);
 }
 
 void DrawCircuit()
@@ -2681,7 +2891,7 @@ void DrawArtifacts()
 	SDL_Rect from, to;
 	
 	if (artifact_spr == NULL) {
-		artifact_spr = IMG_Load(DATADIR "/i/artifacts.png");
+		artifact_spr = EM_IMG_Load(DATADIR "/i/artifacts.png");
 		SDL_SetColorKey(artifact_spr, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0);
 	}
 	
@@ -2694,7 +2904,7 @@ void DrawArtifacts()
 			
 			to.x = 608;
 			to.y = 47 + i * 35;
-			SDL_BlitSurface(artifact_spr, &from, screen, &to);
+			EM_BLIT(artifact_spr, &from, screen, &to);
 		}
 	}
 }
