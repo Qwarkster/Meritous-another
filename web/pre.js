@@ -32,7 +32,9 @@ if (typeof document !== 'undefined') {
   document.addEventListener('keydown', mk_keydown, true);
   document.addEventListener('keyup',   mk_keyup,   true);
 
-  document.addEventListener('DOMContentLoaded', function() {
+  // DOMContentLoaded may have already fired since index.js loads at end of body.
+  // Use readyState check so setup runs immediately if DOM is ready.
+  function mkDOMSetup() {
     var canvas = document.getElementById('canvas');
     if (canvas) {
       canvas.setAttribute('tabindex', '0');
@@ -42,13 +44,9 @@ if (typeof document !== 'undefined') {
 
     // Touch overlay — wire buttons to MERITOUS_KEYS via pointer events
     // Uses pointer capture so each button tracks its own touch independently (multi-touch).
-    var TOUCH_KEY_MAP = {
-      'up':'up', 'dn':'dn', 'lt':'lt', 'rt':'rt',
-      'sp':'sp', 'enter':'enter', 'tab':'tab', 'esc':'esc'
-    };
     document.querySelectorAll('[data-key]').forEach(function(btn) {
       var key = btn.dataset.key;
-      if (!TOUCH_KEY_MAP[key]) return;
+      if (!MERITOUS_KEYS.hasOwnProperty(key)) return;
       btn.addEventListener('pointerdown', function(e) {
         e.preventDefault();
         btn.setPointerCapture(e.pointerId);
@@ -65,7 +63,12 @@ if (typeof document !== 'undefined') {
       var toggleBtn = document.getElementById('gamepad-toggle');
       if (toggleBtn) toggleBtn.textContent = '🎮 HIDE PAD';
     }
-  });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mkDOMSetup);
+  } else {
+    mkDOMSetup();
+  }
 }
 
 // ColorKey map for em_indexed_blit (SDL_SetColorKey is a no-op in Emscripten)
