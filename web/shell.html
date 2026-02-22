@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Meritous</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
@@ -77,8 +77,10 @@
       border-radius: 2px;
     }
 
-    /* Screen glow behind canvas */
+    /* Screen wrap: constrained so canvas shrinks on small viewports */
     .screen-wrap {
+      width: 640px;
+      max-width: calc(100vw - 48px); /* 28 cabinet padding + 20 body padding */
       position: relative;
     }
     .screen-wrap::before {
@@ -91,6 +93,10 @@
 
     canvas {
       display: block;
+      /* CSS width/height scale the display while canvas still renders at native 640×480.
+         aspect-ratio auto-computes height to maintain 4:3. */
+      width: 100%;
+      aspect-ratio: 640 / 480;
       image-rendering: pixelated;
       cursor: crosshair;
       position: relative;
@@ -200,70 +206,68 @@
       transition: opacity 0.3s, transform 0.3s;
       pointer-events: none;
       letter-spacing: 0.1em;
-      z-index: 100;
+      z-index: 200;
     }
     #save-toast.show {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
 
-    /* Touch overlay — positioned absolute inside cabinet, over the canvas */
-    #touch-overlay {
-      position: absolute;
-      inset: 0;
+    /* Touch controls: fixed to viewport sides, centered vertically */
+    .touch-panel {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 100;
       display: none;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
-      pointer-events: none; /* middle passes through to canvas */
-      z-index: 5;
-      padding: 0 6px;
+      justify-content: center;
       user-select: none;
       -webkit-user-select: none;
+      touch-action: none;
     }
+    #dpad-panel  { left:  8px; }
+    #action-panel { right: 8px; }
 
     .dpad {
       display: grid;
-      grid-template-columns: repeat(3, 54px);
-      grid-template-rows: repeat(3, 54px);
+      grid-template-columns: repeat(3, 52px);
+      grid-template-rows: repeat(3, 52px);
       gap: 3px;
-      pointer-events: auto;
-      touch-action: none;
     }
     .dpad-btn {
       font-family: inherit;
       font-size: 1.2rem;
-      background: rgba(26,26,46,0.75);
+      background: rgba(26,26,46,0.85);
       color: #7af;
-      border: 2px solid rgba(51,51,68,0.8);
+      border: 2px solid rgba(68,85,136,0.9);
       border-radius: 6px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       touch-action: none;
-      box-shadow: 0 0 8px #48f4, inset 0 0 6px #0006;
-      transition: background 0.1s, box-shadow 0.1s;
+      box-shadow: 0 0 8px #48f5, inset 0 0 6px #0008;
     }
-    .dpad-btn:active { background: rgba(42,42,78,0.9); box-shadow: 0 0 14px #48f9; }
-    .dpad-center { background: transparent; border-color: transparent; pointer-events: none; box-shadow: none; }
+    .dpad-btn:active { background: rgba(42,42,78,0.95); box-shadow: 0 0 16px #48fc; }
+    .dpad-center { background: transparent !important; border-color: transparent !important; pointer-events: none; box-shadow: none !important; }
 
     .action-buttons {
       display: grid;
-      grid-template-columns: repeat(2, 60px);
-      grid-template-rows: repeat(2, 60px);
+      grid-template-columns: repeat(2, 58px);
+      grid-template-rows: repeat(2, 58px);
       gap: 6px;
-      pointer-events: auto;
-      touch-action: none;
     }
     .act-btn {
       font-family: inherit;
       font-size: 0.38rem;
-      background: rgba(26,26,46,0.75);
+      background: rgba(26,26,46,0.85);
       color: #9ab;
-      border: 2px solid rgba(51,51,68,0.8);
+      border: 2px solid rgba(68,85,136,0.9);
       border-radius: 50%;
-      width: 60px;
-      height: 60px;
+      width: 58px;
+      height: 58px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
@@ -271,24 +275,22 @@
       justify-content: center;
       touch-action: none;
       gap: 2px;
-      box-shadow: 0 0 8px #48f4, inset 0 0 6px #0006;
-      transition: background 0.1s, box-shadow 0.1s;
+      box-shadow: 0 0 8px #48f5, inset 0 0 6px #0008;
       line-height: 1.2;
     }
     .act-btn .icon { font-size: 1rem; }
-    .act-btn:active { background: rgba(42,42,78,0.9); box-shadow: 0 0 14px #48f9; }
-    .act-btn.fire { border-color: rgba(170,68,68,0.8); color: #faa; box-shadow: 0 0 8px #a446; }
-    .act-btn.fire:active { box-shadow: 0 0 16px #f449; }
+    .act-btn:active { background: rgba(42,42,78,0.95); box-shadow: 0 0 16px #48fc; }
+    .act-btn.fire { border-color: rgba(170,68,68,0.9); color: #faa; box-shadow: 0 0 8px #a447; }
+    .act-btn.fire:active { box-shadow: 0 0 18px #f44b; }
 
-    /* Fullscreen: cabinet fills screen, JS scales canvas (see pre.js applyFullscreenScale) */
+    /* Fullscreen: cabinet fills screen */
     .cabinet:fullscreen,
-    .cabinet:-webkit-full-screen,
-    .cabinet:-moz-full-screen {
+    .cabinet:-webkit-full-screen {
       display: flex;
       justify-content: center;
       align-items: center;
-      width: 100vw;
-      height: 100vh;
+      width: 100vw !important;
+      height: 100vh !important;
       padding: 0;
       border: none;
       border-radius: 0;
@@ -296,13 +298,9 @@
       box-shadow: none;
     }
     .cabinet:fullscreen::after,
-    .cabinet:-webkit-full-screen::after,
-    .cabinet:-moz-full-screen::after { display: none; }
+    .cabinet:-webkit-full-screen::after { display: none; }
     .cabinet:fullscreen .screen-wrap,
-    .cabinet:-webkit-full-screen .screen-wrap,
-    .cabinet:-moz-full-screen .screen-wrap {
-      position: static;
-    }
+    .cabinet:-webkit-full-screen .screen-wrap { position: static; }
   </style>
 </head>
 <body>
@@ -314,7 +312,7 @@
 </header>
 
 <div class="cabinet">
-  <div class="screen-wrap">
+  <div class="screen-wrap" id="screen-wrap">
     <canvas id="canvas" width="640" height="480"
             oncontextmenu="event.preventDefault()" tabindex="0"></canvas>
     <div id="loading">
@@ -322,25 +320,29 @@
       <div class="progress-bar"><div class="progress-bar-fill" id="progress-fill"></div></div>
     </div>
   </div>
-  <!-- Touch overlay: absolute over canvas, transparent middle, controls on sides -->
-  <div id="touch-overlay">
-    <div class="dpad">
-      <div></div>
-      <button class="dpad-btn" data-key="up">▲</button>
-      <div></div>
-      <button class="dpad-btn" data-key="lt">◀</button>
-      <div class="dpad-btn dpad-center"></div>
-      <button class="dpad-btn" data-key="rt">▶</button>
-      <div></div>
-      <button class="dpad-btn" data-key="dn">▼</button>
-      <div></div>
-    </div>
-    <div class="action-buttons">
-      <button class="act-btn fire" data-key="sp"><span class="icon">⚡</span>FIRE</button>
-      <button class="act-btn" data-key="enter"><span class="icon">✓</span>OK</button>
-      <button class="act-btn" data-key="tab"><span class="icon">🗺</span>MAP</button>
-      <button class="act-btn" data-key="esc"><span class="icon">☰</span>MENU</button>
-    </div>
+</div>
+
+<!-- Touch controls: fixed to viewport, not inside cabinet -->
+<div class="touch-panel" id="dpad-panel">
+  <div class="dpad">
+    <div></div>
+    <button class="dpad-btn" data-key="up">▲</button>
+    <div></div>
+    <button class="dpad-btn" data-key="lt">◀</button>
+    <div class="dpad-btn dpad-center"></div>
+    <button class="dpad-btn" data-key="rt">▶</button>
+    <div></div>
+    <button class="dpad-btn" data-key="dn">▼</button>
+    <div></div>
+  </div>
+</div>
+
+<div class="touch-panel" id="action-panel">
+  <div class="action-buttons">
+    <button class="act-btn fire" data-key="sp"><span class="icon">⚡</span>FIRE</button>
+    <button class="act-btn" data-key="enter"><span class="icon">✓</span>OK</button>
+    <button class="act-btn" data-key="tab"><span class="icon">🗺</span>MAP</button>
+    <button class="act-btn" data-key="esc"><span class="icon">☰</span>MENU</button>
   </div>
 </div>
 
@@ -349,8 +351,6 @@
   <button class="ctrl-btn" id="mute-btn" onclick="toggleMute()">♪ MUTE</button>
   <button class="ctrl-btn" id="gamepad-toggle" onclick="toggleGamepad()">🎮 SHOW PAD</button>
 </div>
-
-<!-- Remove old overlay location - now lives inside .cabinet above -->
 
 <div class="key-hints">
   <span>MOVE</span> WASD / ARROW KEYS &nbsp;&nbsp;
@@ -369,6 +369,8 @@
 
 <script>
   var muted = false;
+  var padVisible = false;
+
   function toggleMute() {
     muted = !muted;
     document.getElementById('mute-btn').textContent = muted ? '♪ UNMUTE' : '♪ MUTE';
@@ -383,22 +385,49 @@
   }
 
   function toggleGamepad() {
-    var overlay = document.getElementById('touch-overlay');
-    var btn = document.getElementById('gamepad-toggle');
-    var visible = overlay.style.display === 'flex';
-    overlay.style.display = visible ? 'none' : 'flex';
-    btn.textContent = visible ? '🎮 SHOW PAD' : '🎮 HIDE PAD';
+    padVisible = !padVisible;
+    showPad(padVisible);
+    document.getElementById('gamepad-toggle').textContent = padVisible ? '🎮 HIDE PAD' : '🎮 SHOW PAD';
   }
 
-  // Auto-show overlay on entering fullscreen (primary mobile use case)
-  document.addEventListener('fullscreenchange', function() {
-    var overlay = document.getElementById('touch-overlay');
-    var btn = document.getElementById('gamepad-toggle');
-    if (document.fullscreenElement) {
-      overlay.style.display = 'flex';
-      if (btn) btn.textContent = '🎮 HIDE PAD';
+  function showPad(on) {
+    document.getElementById('dpad-panel').style.display   = on ? 'flex' : 'none';
+    document.getElementById('action-panel').style.display = on ? 'flex' : 'none';
+    padVisible = on;
+    scaleGame();
+  }
+
+  // Scale canvas for fullscreen. For normal view, CSS aspect-ratio + max-width handles it.
+  // In fullscreen we set canvas.style.width/height directly (Emscripten doesn't touch these).
+  function scaleGame() {
+    var canvas = document.getElementById('canvas');
+    var wrap   = document.getElementById('screen-wrap');
+    if (!canvas || !wrap) return;
+    var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+    if (fsEl) {
+      var sw = screen.width;
+      var sh = screen.height;
+      // Each fixed panel is 170px wide + 8px margin from edge = 178px occupied per side
+      var sideW = padVisible ? 178 : 0;
+      var avW = sw - sideW * 2;
+      var avH = sh;
+      var scale = Math.min(avW / 640, avH / 480);
+      var w = Math.round(640 * scale);
+      var h = Math.round(480 * scale);
+      canvas.style.width  = w + 'px';
+      canvas.style.height = h + 'px';
+      wrap.style.width    = w + 'px';
+    } else {
+      canvas.style.width  = '';
+      canvas.style.height = '';
+      wrap.style.width    = '';
     }
-  });
+  }
+
+  document.addEventListener('fullscreenchange',       function() { scaleGame(); if (document.fullscreenElement) showPad(true); });
+  document.addEventListener('webkitfullscreenchange', function() { scaleGame(); if (document.webkitFullscreenElement) showPad(true); });
+  window.addEventListener('resize',              scaleGame);
+  window.addEventListener('orientationchange',   function() { setTimeout(scaleGame, 200); });
 
   var statusEl   = document.getElementById('loading-text');
   var progressEl = document.getElementById('progress-fill');
@@ -408,6 +437,7 @@
     if (!text) {
       loadingEl.classList.add('hidden');
       document.getElementById('canvas').focus();
+      scaleGame(); // apply scale once game is loaded
       return;
     }
     var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
@@ -427,7 +457,6 @@
       this.totalDependencies = Math.max(this.totalDependencies, n);
       setStatus(n ? 'LOADING (' + (this.totalDependencies - n) + '/' + this.totalDependencies + ')' : '');
     },
-    // Suppress stdout/stderr from appearing anywhere visible
     print:    function() {},
     printErr: function(t) { /* uncomment to debug: console.warn(t); */ }
   };

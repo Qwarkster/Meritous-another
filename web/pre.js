@@ -42,56 +42,28 @@ if (typeof document !== 'undefined') {
       canvas.addEventListener('click', function() { canvas.focus(); });
     }
 
-    // Touch overlay — wire buttons to MERITOUS_KEYS.
-    // Use both pointer events (desktop/modern) AND touchstart/touchend (iOS Safari fallback).
-    document.querySelectorAll('[data-key]').forEach(function(btn) {
-      var key = btn.dataset.key;
-      if (!MERITOUS_KEYS.hasOwnProperty(key)) return;
-
-      // Pointer events (Chrome/Android/desktop)
-      btn.addEventListener('pointerdown', function(e) {
-        e.preventDefault();
-        try { btn.setPointerCapture(e.pointerId); } catch(ex) {}
-        MERITOUS_KEYS[key] = 1;
-      });
-      btn.addEventListener('pointerup',     function(e) { e.preventDefault(); MERITOUS_KEYS[key] = 0; });
-      btn.addEventListener('pointercancel', function(e) { MERITOUS_KEYS[key] = 0; });
-
-      // Touch fallback (iOS Safari)
-      btn.addEventListener('touchstart', function(e) { e.preventDefault(); MERITOUS_KEYS[key] = 1; }, {passive: false});
-      btn.addEventListener('touchend',   function(e) { e.preventDefault(); MERITOUS_KEYS[key] = 0; }, {passive: false});
-      btn.addEventListener('touchcancel',function(e) { MERITOUS_KEYS[key] = 0; }, {passive: false});
-    });
-
-  // Fullscreen scaling: JS-driven so Emscripten inline styles don't interfere.
-  // Scales canvas to fit between the side controls (340px total) while filling screen height.
-  function applyFullscreenScale() {
-    var canvas = document.getElementById('canvas');
-    if (!canvas) return;
-    var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
-    if (fsEl) {
-      var sw = window.screen.width  || window.innerWidth;
-      var sh = window.screen.height || window.innerHeight;
-      // Available width after side controls (170px each side)
-      var avW = sw - 340;
-      var avH = sh;
-      // Fit 640×480 within avW × avH maintaining aspect ratio
-      var scale = Math.min(avW / 640, avH / 480);
-      canvas.style.width  = Math.floor(640 * scale) + 'px';
-      canvas.style.height = Math.floor(480 * scale) + 'px';
-    } else {
-      // Restore normal size
-      canvas.style.width  = '';
-      canvas.style.height = '';
+    // Touch input via document-level capture listeners.
+    // Using capture phase ensures we get the event before any SDL handlers.
+    // Using coordinate hit-test avoids issues with pointer capture / delegation.
+    function touchKey(e, val) {
+      for (var i = 0; i < e.changedTouches.length; i++) {
+        var t = e.changedTouches[i];
+        var el = document.elementFromPoint(t.clientX, t.clientY);
+        // Walk up to find data-key in case touch is on a child span
+        while (el && !el.dataset.key && el !== document.body) el = el.parentElement;
+        if (el && el.dataset && el.dataset.key && MERITOUS_KEYS.hasOwnProperty(el.dataset.key)) {
+          MERITOUS_KEYS[el.dataset.key] = val;
+          if (val) e.preventDefault();
+        }
+      }
     }
-  }
-  document.addEventListener('fullscreenchange',       applyFullscreenScale);
-  document.addEventListener('webkitfullscreenchange', applyFullscreenScale);
+    document.addEventListener('touchstart',  function(e) { touchKey(e, 1); }, { capture: true, passive: false });
+    document.addEventListener('touchend',    function(e) { touchKey(e, 0); }, { capture: true, passive: false });
+    document.addEventListener('touchcancel', function(e) { touchKey(e, 0); }, { capture: true, passive: true  });
 
     // Auto-show touch overlay on touch-capable devices
     if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-      var overlay = document.getElementById('touch-overlay');
-      if (overlay) overlay.style.display = 'flex';
+      showPad(true);
       var toggleBtn = document.getElementById('gamepad-toggle');
       if (toggleBtn) toggleBtn.textContent = '🎮 HIDE PAD';
     }
