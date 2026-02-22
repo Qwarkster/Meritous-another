@@ -42,46 +42,34 @@ if (typeof document !== 'undefined') {
       canvas.addEventListener('click', function() { canvas.focus(); });
     }
 
-    // Touch input via document-level capture listeners.
-    // touchMap tracks identifier → [keys] so touchend always releases the right keys
-    // even if the finger slides off the button before lifting (slide-off fix).
-    // Buttons use data-key (single) or data-keys (space-separated, for diagonals).
-    var touchMap = {};
-
-    function getKeysForEl(el) {
-      while (el && el !== document.body) {
-        if (el.dataset) {
-          if (el.dataset.keys) return el.dataset.keys.split(' ').filter(function(k) { return MERITOUS_KEYS.hasOwnProperty(k); });
-          if (el.dataset.key && MERITOUS_KEYS.hasOwnProperty(el.dataset.key)) return [el.dataset.key];
-        }
-        el = el.parentElement;
-      }
-      return [];
+    // Wire touch/pointer input on each control button.
+    // setPointerCapture ensures pointerup fires on the SAME element even if the
+    // finger slides off — this fixes the stuck-key slide-off bug.
+    // data-keylist (space-separated) used for diagonal buttons (data-keys conflicts
+    // with DOMStringMap.prototype.keys iterator in some browsers).
+    function getKeys(btn) {
+      var k = btn.getAttribute('data-keylist') || btn.getAttribute('data-key') || '';
+      return k.split(' ').filter(function(x) { return MERITOUS_KEYS.hasOwnProperty(x); });
     }
 
-    function touchStart(e) {
-      for (var i = 0; i < e.changedTouches.length; i++) {
-        var t = e.changedTouches[i];
-        var keys = getKeysForEl(document.elementFromPoint(t.clientX, t.clientY));
-        if (keys.length) {
-          touchMap[t.identifier] = keys;
-          for (var j = 0; j < keys.length; j++) MERITOUS_KEYS[keys[j]] = 1;
-          e.preventDefault();
-        }
+    function wireBtn(btn) {
+      var active = [];
+      btn.addEventListener('pointerdown', function(e) {
+        e.preventDefault();
+        try { btn.setPointerCapture(e.pointerId); } catch(ex) {}
+        active = getKeys(btn);
+        for (var i = 0; i < active.length; i++) MERITOUS_KEYS[active[i]] = 1;
+      });
+      function up() {
+        for (var i = 0; i < active.length; i++) MERITOUS_KEYS[active[i]] = 0;
+        active = [];
       }
+      btn.addEventListener('pointerup',           up);
+      btn.addEventListener('pointercancel',        up);
+      btn.addEventListener('lostpointercapture',   up);
     }
-    function touchEnd(e) {
-      for (var i = 0; i < e.changedTouches.length; i++) {
-        var id = e.changedTouches[i].identifier;
-        if (touchMap[id]) {
-          for (var j = 0; j < touchMap[id].length; j++) MERITOUS_KEYS[touchMap[id][j]] = 0;
-          delete touchMap[id];
-        }
-      }
-    }
-    document.addEventListener('touchstart',  touchStart, { capture: true, passive: false });
-    document.addEventListener('touchend',    touchEnd,   { capture: true, passive: false });
-    document.addEventListener('touchcancel', touchEnd,   { capture: true, passive: true  });
+
+    document.querySelectorAll('[data-key],[data-keylist]').forEach(wireBtn);
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', mkDOMSetup);
