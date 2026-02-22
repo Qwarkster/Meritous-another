@@ -45,6 +45,10 @@ if (typeof document !== 'undefined') {
     // Wire action buttons with BOTH pointer (desktop) AND touch (mobile) events.
     // SDL's touch handlers can block pointer synthesis on mobile — direct touch
     // events on our own elements are the reliable path.
+    function getKeys(btn) {
+      var k = btn.getAttribute('data-keylist') || btn.getAttribute('data-key') || '';
+      return k.split(' ').filter(function(x) { return MERITOUS_KEYS.hasOwnProperty(x); });
+    }
     function wireBtn(btn) {
       var active = [];
       function press() {
