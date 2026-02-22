@@ -195,7 +195,7 @@
 </div>
 
 <div class="controls-bar">
-  <button class="ctrl-btn" onclick="Module.requestFullscreen(false,false)">⛶ FULLSCREEN</button>
+  <button class="ctrl-btn" onclick="var c=document.getElementById('canvas');(c.requestFullscreen||c.webkitRequestFullscreen||c.mozRequestFullScreen).call(c)">⛶ FULLSCREEN</button>
   <button class="ctrl-btn" id="mute-btn" onclick="toggleMute()">♪ MUTE</button>
 </div>
 

@@ -12,6 +12,10 @@ web/meritous.worker.js
 meritous_v12_src/meritous
 meritous_v12_src/src/*.o
 
+# Firebase
+.firebase/
+firebase-debug.log
+
 # Editor
 *.swp
 .DS_Store

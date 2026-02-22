@@ -55,7 +55,7 @@ EM_FLAGS = \
 
 default: $(OUTDIR)/meritous.html
 
-$(OUTDIR)/meritous.html: $(SRCS)
+$(OUTDIR)/meritous.html: $(SRCS) web/shell.html web/pre.js
 	@mkdir -p $(OUTDIR)
 	emcc $(EM_FLAGS) $(SRCS) -o $(OUTDIR)/meritous.html
 
