@@ -207,15 +207,16 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* Touch overlay */
+    /* Touch overlay — positioned absolute inside cabinet, over the canvas */
     #touch-overlay {
+      position: absolute;
+      inset: 0;
       display: none;
       justify-content: space-between;
       align-items: center;
-      width: 100%;
-      max-width: 640px;
-      padding: 10px 4px;
-      gap: 10px;
+      pointer-events: none; /* middle passes through to canvas */
+      z-index: 5;
+      padding: 0 6px;
       user-select: none;
       -webkit-user-select: none;
     }
@@ -225,13 +226,15 @@
       grid-template-columns: repeat(3, 54px);
       grid-template-rows: repeat(3, 54px);
       gap: 3px;
+      pointer-events: auto;
+      touch-action: none;
     }
     .dpad-btn {
       font-family: inherit;
       font-size: 1.2rem;
-      background: #1a1a2e;
+      background: rgba(26,26,46,0.75);
       color: #7af;
-      border: 2px solid #334;
+      border: 2px solid rgba(51,51,68,0.8);
       border-radius: 6px;
       cursor: pointer;
       display: flex;
@@ -241,24 +244,23 @@
       box-shadow: 0 0 8px #48f4, inset 0 0 6px #0006;
       transition: background 0.1s, box-shadow 0.1s;
     }
-    .dpad-btn:active, .dpad-btn.pressed {
-      background: #2a2a4e;
-      box-shadow: 0 0 14px #48f9;
-    }
-    .dpad-center { background: #111; border-color: #222; pointer-events: none; }
+    .dpad-btn:active { background: rgba(42,42,78,0.9); box-shadow: 0 0 14px #48f9; }
+    .dpad-center { background: transparent; border-color: transparent; pointer-events: none; box-shadow: none; }
 
     .action-buttons {
       display: grid;
       grid-template-columns: repeat(2, 60px);
       grid-template-rows: repeat(2, 60px);
       gap: 6px;
+      pointer-events: auto;
+      touch-action: none;
     }
     .act-btn {
       font-family: inherit;
       font-size: 0.38rem;
-      background: #1a1a2e;
+      background: rgba(26,26,46,0.75);
       color: #9ab;
-      border: 2px solid #334;
+      border: 2px solid rgba(51,51,68,0.8);
       border-radius: 50%;
       width: 60px;
       height: 60px;
@@ -274,12 +276,34 @@
       line-height: 1.2;
     }
     .act-btn .icon { font-size: 1rem; }
-    .act-btn:active, .act-btn.pressed {
-      background: #2a2a4e;
-      box-shadow: 0 0 14px #48f9;
-    }
-    .act-btn.fire { border-color: #a44; color: #faa; box-shadow: 0 0 8px #a446; }
+    .act-btn:active { background: rgba(42,42,78,0.9); box-shadow: 0 0 14px #48f9; }
+    .act-btn.fire { border-color: rgba(170,68,68,0.8); color: #faa; box-shadow: 0 0 8px #a446; }
     .act-btn.fire:active { box-shadow: 0 0 16px #f449; }
+
+    /* Fullscreen: cabinet fills screen, canvas scales to fit, controls in side spaces */
+    .cabinet:fullscreen,
+    .cabinet:-webkit-full-screen,
+    .cabinet:-moz-full-screen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100vw;
+      height: 100vh;
+      padding: 0;
+      border: none;
+      border-radius: 0;
+      background: #000;
+      box-shadow: none;
+    }
+    .cabinet:fullscreen canvas,
+    .cabinet:-webkit-full-screen canvas,
+    .cabinet:-moz-full-screen canvas {
+      max-height: 100vh;
+      max-width: calc(100vw - 340px);
+      width: auto;
+      height: auto;
+    }
+    .cabinet:fullscreen .cabinet::after { display: none; }
   </style>
 </head>
 <body>
@@ -299,35 +323,35 @@
       <div class="progress-bar"><div class="progress-bar-fill" id="progress-fill"></div></div>
     </div>
   </div>
+  <!-- Touch overlay: absolute over canvas, transparent middle, controls on sides -->
+  <div id="touch-overlay">
+    <div class="dpad">
+      <div></div>
+      <button class="dpad-btn" data-key="up">▲</button>
+      <div></div>
+      <button class="dpad-btn" data-key="lt">◀</button>
+      <div class="dpad-btn dpad-center"></div>
+      <button class="dpad-btn" data-key="rt">▶</button>
+      <div></div>
+      <button class="dpad-btn" data-key="dn">▼</button>
+      <div></div>
+    </div>
+    <div class="action-buttons">
+      <button class="act-btn fire" data-key="sp"><span class="icon">⚡</span>FIRE</button>
+      <button class="act-btn" data-key="enter"><span class="icon">✓</span>OK</button>
+      <button class="act-btn" data-key="tab"><span class="icon">🗺</span>MAP</button>
+      <button class="act-btn" data-key="esc"><span class="icon">☰</span>MENU</button>
+    </div>
+  </div>
 </div>
 
 <div class="controls-bar">
-  <button class="ctrl-btn" onclick="var c=document.getElementById('canvas');(c.requestFullscreen||c.webkitRequestFullscreen||c.mozRequestFullScreen).call(c)">⛶ FULLSCREEN</button>
+  <button class="ctrl-btn" onclick="goFullscreen()">⛶ FULLSCREEN</button>
   <button class="ctrl-btn" id="mute-btn" onclick="toggleMute()">♪ MUTE</button>
   <button class="ctrl-btn" id="gamepad-toggle" onclick="toggleGamepad()">🎮 SHOW PAD</button>
 </div>
 
-<div id="touch-overlay">
-  <!-- D-pad (left side) -->
-  <div class="dpad">
-    <div></div>
-    <button class="dpad-btn" data-key="up">▲</button>
-    <div></div>
-    <button class="dpad-btn" data-key="lt">◀</button>
-    <div class="dpad-btn dpad-center"></div>
-    <button class="dpad-btn" data-key="rt">▶</button>
-    <div></div>
-    <button class="dpad-btn" data-key="dn">▼</button>
-    <div></div>
-  </div>
-  <!-- Action buttons (right side) -->
-  <div class="action-buttons">
-    <button class="act-btn fire" data-key="sp"><span class="icon">⚡</span>FIRE</button>
-    <button class="act-btn" data-key="enter"><span class="icon">✓</span>OK</button>
-    <button class="act-btn" data-key="tab"><span class="icon">🗺</span>MAP</button>
-    <button class="act-btn" data-key="esc"><span class="icon">☰</span>MENU</button>
-  </div>
-</div>
+<!-- Remove old overlay location - now lives inside .cabinet above -->
 
 <div class="key-hints">
   <span>MOVE</span> WASD / ARROW KEYS &nbsp;&nbsp;
@@ -354,6 +378,11 @@
     }
   }
 
+  function goFullscreen() {
+    var c = document.querySelector('.cabinet');
+    (c.requestFullscreen || c.webkitRequestFullscreen || c.mozRequestFullScreen).call(c);
+  }
+
   function toggleGamepad() {
     var overlay = document.getElementById('touch-overlay');
     var btn = document.getElementById('gamepad-toggle');
@@ -361,6 +390,16 @@
     overlay.style.display = visible ? 'none' : 'flex';
     btn.textContent = visible ? '🎮 SHOW PAD' : '🎮 HIDE PAD';
   }
+
+  // Auto-show overlay on entering fullscreen (primary mobile use case)
+  document.addEventListener('fullscreenchange', function() {
+    var overlay = document.getElementById('touch-overlay');
+    var btn = document.getElementById('gamepad-toggle');
+    if (document.fullscreenElement) {
+      overlay.style.display = 'flex';
+      if (btn) btn.textContent = '🎮 HIDE PAD';
+    }
+  });
 
   var statusEl   = document.getElementById('loading-text');
   var progressEl = document.getElementById('progress-fill');
