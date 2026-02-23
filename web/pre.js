@@ -47,33 +47,48 @@ if (typeof document !== 'undefined') {
       return k.split(' ').filter(function(x) { return MERITOUS_KEYS.hasOwnProperty(x); });
     }
 
-    // Each button handles both touch (mobile) and pointer (desktop) events.
-    // Both paths are idempotent — if both fire that's fine.
-    // touchstart/end are on the button directly (not delegated) to avoid
-    // relying on elementFromPoint in fullscreen coordinate space.
+    // Debug overlay — shows touch count so we can tell if events are firing on mobile.
+    // Remove once confirmed working.
+    var _dbgEl = document.createElement('div');
+    _dbgEl.id = 'btn-dbg';
+    _dbgEl.style.cssText = 'position:fixed;top:4px;right:4px;z-index:9999;background:rgba(0,0,0,0.85);color:#0f0;font-size:11px;font-family:monospace;padding:4px 6px;border-radius:3px;pointer-events:none;';
+    _dbgEl.textContent = 'btns:0';
+    document.body.appendChild(_dbgEl);
+    var _dbgCount = 0;
+
+    // Buttons use a min-hold: touchstart sets key, release is delayed 100ms so the
+    // C game loop (SDL_Delay ~20ms) has time to read the key even for quick taps.
     function wireBtn(btn) {
       var active = [];
+      var releaseTimer = null;
+
       function press() {
+        if (releaseTimer) { clearTimeout(releaseTimer); releaseTimer = null; }
         active = getKeys(btn);
         for (var i = 0; i < active.length; i++) MERITOUS_KEYS[active[i]] = 1;
+        _dbgCount++; _dbgEl.textContent = 'btns:' + _dbgCount + ' k:' + active.join(',');
       }
-      function up() {
-        for (var i = 0; i < active.length; i++) MERITOUS_KEYS[active[i]] = 0;
-        active = [];
+      function scheduleUp() {
+        // Delay release so a quick tap isn't missed between SDL_Delay() wake-ups
+        if (releaseTimer) clearTimeout(releaseTimer);
+        releaseTimer = setTimeout(function() {
+          for (var i = 0; i < active.length; i++) MERITOUS_KEYS[active[i]] = 0;
+          active = [];
+          releaseTimer = null;
+        }, 100);
       }
-      // Touch — primary on mobile, {passive:false} so preventDefault works
-      btn.addEventListener('touchstart', function(e) { e.preventDefault(); press(); }, {passive: false});
-      btn.addEventListener('touchend',    function(e) { e.preventDefault(); up();   }, {passive: false});
-      btn.addEventListener('touchcancel', up, {passive: true});
-      // Pointer — primary on desktop (mouse), also fires on mobile as backup
+
+      btn.addEventListener('touchstart', function(e) { e.preventDefault(); press(); },    {passive: false});
+      btn.addEventListener('touchend',    function(e) { e.preventDefault(); scheduleUp(); }, {passive: false});
+      btn.addEventListener('touchcancel', scheduleUp, {passive: true});
       btn.addEventListener('pointerdown', function(e) {
         e.preventDefault();
         try { btn.setPointerCapture(e.pointerId); } catch(ex) {}
         press();
       });
-      btn.addEventListener('pointerup',         up);
-      btn.addEventListener('pointercancel',      up);
-      btn.addEventListener('lostpointercapture', up);
+      btn.addEventListener('pointerup',         scheduleUp);
+      btn.addEventListener('pointercancel',      scheduleUp);
+      btn.addEventListener('lostpointercapture', scheduleUp);
     }
     document.querySelectorAll('[data-key],[data-keylist]').forEach(wireBtn);
 
