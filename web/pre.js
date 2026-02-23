@@ -47,14 +47,13 @@ if (typeof document !== 'undefined') {
       return k.split(' ').filter(function(x) { return MERITOUS_KEYS.hasOwnProperty(x); });
     }
 
-    // Debug overlay — injected inside cabinet so it survives fullscreen.
-    // Positioned above the action panel (right side). Remove once confirmed working.
+    // Debug overlay — inside action-panel so it's guaranteed visible in fullscreen.
     var _dbgEl = document.createElement('div');
     _dbgEl.id = 'btn-dbg';
-    _dbgEl.style.cssText = 'position:absolute;bottom:calc(50% + 80px);right:4px;z-index:20;background:rgba(0,0,0,0.9);color:#0f0;font-size:10px;font-family:monospace;padding:3px 5px;border-radius:3px;pointer-events:none;white-space:nowrap;';
+    _dbgEl.style.cssText = 'color:#0f0;font-size:9px;font-family:monospace;background:rgba(0,0,0,0.85);padding:2px 4px;border-radius:2px;pointer-events:none;margin-bottom:4px;text-align:center;';
     _dbgEl.textContent = 'btns:0';
-    var _cabinet = document.querySelector('.cabinet');
-    if (_cabinet) _cabinet.appendChild(_dbgEl);
+    var _aPanel = document.getElementById('action-panel');
+    if (_aPanel) _aPanel.insertBefore(_dbgEl, _aPanel.firstChild);
     var _dbgCount = 0;
 
     // Buttons use a min-hold: touchstart sets key, release is delayed 100ms so the
