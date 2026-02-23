@@ -805,13 +805,8 @@ int main(int argc, char **argv)
 				}
 				
 				if (voluntary_exit) {
-					executable_running = 0;
-					on_title = 0;
-					SDL_Quit();
-#ifdef __EMSCRIPTEN__
-					EM_ASM({ location.reload(); });
-#endif
-					exit(0);
+					/* Already at the menu — nowhere to quit to; just clear the flag */
+					voluntary_exit = 0;
 				}
 			}
 			
