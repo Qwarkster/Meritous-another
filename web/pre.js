@@ -47,13 +47,14 @@ if (typeof document !== 'undefined') {
       return k.split(' ').filter(function(x) { return MERITOUS_KEYS.hasOwnProperty(x); });
     }
 
-    // Debug overlay — shows touch count so we can tell if events are firing on mobile.
-    // Remove once confirmed working.
+    // Debug overlay — injected inside cabinet so it survives fullscreen.
+    // Positioned above the action panel (right side). Remove once confirmed working.
     var _dbgEl = document.createElement('div');
     _dbgEl.id = 'btn-dbg';
-    _dbgEl.style.cssText = 'position:fixed;top:4px;right:4px;z-index:9999;background:rgba(0,0,0,0.85);color:#0f0;font-size:11px;font-family:monospace;padding:4px 6px;border-radius:3px;pointer-events:none;';
+    _dbgEl.style.cssText = 'position:absolute;bottom:calc(50% + 80px);right:4px;z-index:20;background:rgba(0,0,0,0.9);color:#0f0;font-size:10px;font-family:monospace;padding:3px 5px;border-radius:3px;pointer-events:none;white-space:nowrap;';
     _dbgEl.textContent = 'btns:0';
-    document.body.appendChild(_dbgEl);
+    var _cabinet = document.querySelector('.cabinet');
+    if (_cabinet) _cabinet.appendChild(_dbgEl);
     var _dbgCount = 0;
 
     // Buttons use a min-hold: touchstart sets key, release is delayed 100ms so the
