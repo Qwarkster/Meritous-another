@@ -539,6 +539,9 @@ int SkipLogoEvents()
 		}
 		if (event.type == SDL_QUIT) {
 			SDL_Quit();
+#ifdef __EMSCRIPTEN__
+			EM_ASM({ location.reload(); });
+#endif
 			exit(0);
 		}
 	}
@@ -805,6 +808,9 @@ int main(int argc, char **argv)
 					executable_running = 0;
 					on_title = 0;
 					SDL_Quit();
+#ifdef __EMSCRIPTEN__
+					EM_ASM({ location.reload(); });
+#endif
 					exit(0);
 				}
 			}

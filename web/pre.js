@@ -47,15 +47,6 @@ if (typeof document !== 'undefined') {
       return k.split(' ').filter(function(x) { return MERITOUS_KEYS.hasOwnProperty(x); });
     }
 
-    // Debug overlay — inside action-panel so it's guaranteed visible in fullscreen.
-    var _dbgEl = document.createElement('div');
-    _dbgEl.id = 'btn-dbg';
-    _dbgEl.style.cssText = 'color:#0f0;font-size:9px;font-family:monospace;background:rgba(0,0,0,0.85);padding:2px 4px;border-radius:2px;pointer-events:none;margin-bottom:4px;text-align:center;';
-    _dbgEl.textContent = 'btns:0';
-    var _aPanel = document.getElementById('action-panel');
-    if (_aPanel) _aPanel.insertBefore(_dbgEl, _aPanel.firstChild);
-    var _dbgCount = 0;
-
     // Buttons use a min-hold: touchstart sets key, release is delayed 100ms so the
     // C game loop (SDL_Delay ~20ms) has time to read the key even for quick taps.
     function wireBtn(btn) {
@@ -66,7 +57,6 @@ if (typeof document !== 'undefined') {
         if (releaseTimer) { clearTimeout(releaseTimer); releaseTimer = null; }
         active = getKeys(btn);
         for (var i = 0; i < active.length; i++) MERITOUS_KEYS[active[i]] = 1;
-        _dbgCount++; _dbgEl.textContent = 'btns:' + _dbgCount + ' k:' + active.join(',');
       }
       function scheduleUp() {
         // Delay release so a quick tap isn't missed between SDL_Delay() wake-ups
