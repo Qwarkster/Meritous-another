@@ -47,7 +47,10 @@ if (typeof document !== 'undefined') {
       return k.split(' ').filter(function(x) { return MERITOUS_KEYS.hasOwnProperty(x); });
     }
 
-    // Desktop: pointer events with capture on each button
+    // Each button handles both touch (mobile) and pointer (desktop) events.
+    // Both paths are idempotent — if both fire that's fine.
+    // touchstart/end are on the button directly (not delegated) to avoid
+    // relying on elementFromPoint in fullscreen coordinate space.
     function wireBtn(btn) {
       var active = [];
       function press() {
@@ -58,8 +61,12 @@ if (typeof document !== 'undefined') {
         for (var i = 0; i < active.length; i++) MERITOUS_KEYS[active[i]] = 0;
         active = [];
       }
+      // Touch — primary on mobile, {passive:false} so preventDefault works
+      btn.addEventListener('touchstart', function(e) { e.preventDefault(); press(); }, {passive: false});
+      btn.addEventListener('touchend',    function(e) { e.preventDefault(); up();   }, {passive: false});
+      btn.addEventListener('touchcancel', up, {passive: true});
+      // Pointer — primary on desktop (mouse), also fires on mobile as backup
       btn.addEventListener('pointerdown', function(e) {
-        if (e.pointerType === 'touch') return; // handled by panel touch delegate
         e.preventDefault();
         try { btn.setPointerCapture(e.pointerId); } catch(ex) {}
         press();
@@ -69,42 +76,6 @@ if (typeof document !== 'undefined') {
       btn.addEventListener('lostpointercapture', up);
     }
     document.querySelectorAll('[data-key],[data-keylist]').forEach(wireBtn);
-
-    // Mobile: single touchstart/end on parent panel — avoids <button> touch quirks.
-    // Uses elementFromPoint to identify which button was touched.
-    var aPanel = document.getElementById('action-panel');
-    if (aPanel) {
-      var aTouchKeys = {}; // touchId → keys[]
-      function aBtnAt(x, y) {
-        var el = document.elementFromPoint(x, y);
-        while (el && el !== aPanel) {
-          if (el.hasAttribute('data-key') || el.hasAttribute('data-keylist')) return el;
-          el = el.parentElement;
-        }
-        return null;
-      }
-      aPanel.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        for (var i = 0; i < e.changedTouches.length; i++) {
-          var t = e.changedTouches[i];
-          var el = aBtnAt(t.clientX, t.clientY);
-          if (el) {
-            var keys = getKeys(el);
-            aTouchKeys[t.identifier] = keys;
-            for (var j = 0; j < keys.length; j++) MERITOUS_KEYS[keys[j]] = 1;
-          }
-        }
-      }, {passive: false});
-      function aPanelUp(e) {
-        for (var i = 0; i < e.changedTouches.length; i++) {
-          var keys = aTouchKeys[e.changedTouches[i].identifier] || [];
-          for (var j = 0; j < keys.length; j++) MERITOUS_KEYS[keys[j]] = 0;
-          delete aTouchKeys[e.changedTouches[i].identifier];
-        }
-      }
-      aPanel.addEventListener('touchend',    aPanelUp, {passive: false});
-      aPanel.addEventListener('touchcancel', aPanelUp, {passive: true});
-    }
 
     // Virtual joystick — touch events are PRIMARY on mobile; pointer events
     // handle desktop (mouse). jTouchId guards against double-firing.
